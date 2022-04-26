@@ -52,14 +52,13 @@ const ModalAgregarEncuesta = () => {
                 placeholder="Ingrese la pregunta"
                 autoFocus
               />
-
-                <Form.Check
-                  inline
-                  label="1"
-                  name="group1"
-                  type="radio"
-                  id="ola"
-                />
+              <Form.Check
+                inline
+                label="1"
+                name="group1"
+                type="radio"
+                id="ola"
+              />
 
             </Form.Group>
           </Form>
