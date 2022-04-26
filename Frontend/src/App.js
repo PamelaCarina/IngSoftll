@@ -1,55 +1,14 @@
-import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css'
-import Button from 'react-bootstrap/Button'
-import ListGroup from 'react-bootstrap/ListGroup'
+import React from 'react';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 
-function App() {
-  
+import Administrador from './containers/Administrador';
+
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1> Bienvenido, Cristian</h1>
-        <div>
-          <Button variant="primary" size="lg">Agregar</Button>{' '}
-          <Button variant="secondary" size="lg">Cerrar sesión</Button>{' '}
-        </div>
-        <div>
-          <ListGroup>
-            <ListGroup.Item action> Encuesta 1 
-              <Button>
-                Editar
-              </Button>
-            </ListGroup.Item>
-            <ListGroup.Item action> Encuesta 2 </ListGroup.Item>
-            <ListGroup.Item action> Encuesta 3 </ListGroup.Item>
-          </ListGroup>
-        </div>
-      </header>
-      
-    </div>
+    <HashRouter>
+      <Routes>
+        <Route exact path="/" element={<Administrador/>} />
+      </Routes>
+    </HashRouter>
   );
 }
-
-/*
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Hoy es un gran día.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
-*/ 
-export default App;
