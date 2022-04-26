@@ -1,6 +1,7 @@
 import React from 'react';
 
 import BotonAgregarEncuesta from '../../components/BotonAgregarEncuesta';
+import ModalAgregarEncuesta from '../../components/ModalAgregarEncuesta';
 
 const Administrador = () => {
 
@@ -9,6 +10,8 @@ const Administrador = () => {
         <>
             <h1> Bienvenido, Cristian</h1>
             <BotonAgregarEncuesta> </BotonAgregarEncuesta>
+            
+            <ModalAgregarEncuesta> </ModalAgregarEncuesta>
             
         
         </>
