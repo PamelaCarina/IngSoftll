@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import FormControl from 'react-bootstrap/FormControl';
 
 const ModalAgregarEncuesta = () => {
 
@@ -14,20 +15,21 @@ const ModalAgregarEncuesta = () => {
   return (
     <>
       <Button variant="primary" size= "lg" onClick={handleShow}>
-        Launch demo modal
+        Agregar Nueva Encuesta
       </Button>
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
+          <Modal.Title>Agregar Nueva Encuesta</Modal.Title>
         </Modal.Header>
+
         <Modal.Body>
           <Form>
-            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-              <Form.Label>Email address</Form.Label>
+            <Form.Group className="mb-3" controlId="FormEncuesta">
+              <Form.Label>Título</Form.Label>
               <Form.Control
-                type="email"
-                placeholder="name@example.com"
+                type="text"
+                placeholder="Ingrese el título de la encuesta"
                 autoFocus
               />
             </Form.Group>
@@ -35,17 +37,40 @@ const ModalAgregarEncuesta = () => {
               className="mb-3"
               controlId="exampleForm.ControlTextarea1"
             >
-              <Form.Label>Example textarea</Form.Label>
-              <Form.Control as="textarea" rows={3} />
+              <Form.Label>Descripción</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Ingrese la descripción de la encuesta"
+                autoFocus
+              />
+            </Form.Group>
+
+            <Form.Group>
+              <Form.Label>Ingrese la pregunta</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Ingrese la pregunta"
+                autoFocus
+              />
+
+                <Form.Check
+                  inline
+                  label="1"
+                  name="group1"
+                  type="radio"
+                  id="ola"
+                />
+
             </Form.Group>
           </Form>
         </Modal.Body>
+
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Close
+            Cancelar
           </Button>
           <Button variant="primary" onClick={handleClose}>
-            Save Changes
+            Guardar Encuesta
           </Button>
         </Modal.Footer>
       </Modal>

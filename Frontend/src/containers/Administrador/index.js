@@ -8,7 +8,7 @@ const Administrador = () => {
 
     return (
         <>
-            <h1> Bienvenido, Cristian</h1>
+            <h1> Bienvenido</h1>
             <BotonAgregarEncuesta> </BotonAgregarEncuesta>
             
             <ModalAgregarEncuesta> </ModalAgregarEncuesta>
