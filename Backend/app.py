@@ -9,7 +9,8 @@ def dashboard():
 @app.route("/saveEncuesta", methods=['POST'])
 def saveEncuesta():
     if request.method == 'POST':
-        data = request.form
+        data = request.json
+        titulo = data['titulo_encuesta']
 
 @app.route("/getEncuestas", methods=['GET'])
 def getEncuestas():
