@@ -6,7 +6,7 @@ from pip import main
 
 app = Flask(__name__,template_folder="../Frontend")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Crimax123@localhost/flaskmysql'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/flaskmysql'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app) #le pasaremos los datos de arriba al ORM, una vez esto se ejecute nos entregara una ainstancia de una base de datos guardada en la vairable db
 ma = Marshmallow(app) #instancia del modulo de marshmallow que nos permiote la interaccion
