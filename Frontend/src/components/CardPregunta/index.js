@@ -1,9 +1,23 @@
-import React from 'react'
+import React, {useState, FC} from 'react'
 
 import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
+import Alternativa from '../../components/Alternativa';
+import Button from 'react-bootstrap/esm/Button';
 
-const CardPregunta = () => {
+interface props {
+    count: Number;
+}
+
+const CardPregunta: FC<props> = ({count}) => {
+    const [ansList, setAnsList] = useState([]);
+
+    const [countAns, setCountAns] = useState(1);
+
+    const onAddAnswerClick = event => {
+        setCountAns(countAns+1);
+        setAnsList(ansList.concat(<Alternativa countAns={countAns}> </Alternativa>));
+    }
     return(
         <>
             <Card>
@@ -11,7 +25,7 @@ const CardPregunta = () => {
                 <Form.Group  controlId="FormEncuesta">
                     <Form.Control
                     type="text"
-                    placeholder="Pregunta 5"
+                    placeholder = {`Pregunta ${count}`}
                     autoFocus
                     />
                 </Form.Group>
@@ -19,19 +33,11 @@ const CardPregunta = () => {
                 <Card.Body>
                 <Form>
                     <div>
-                    <Form.Check
-                        label="1"
-                        name="group1"
-                        type="radio"
-                        id="ola"
-                    />
-                    <Form.Check
-                        label="1"
-                        name="group1"
-                        type="radio"
-                        id="ola"
-                    />
+                    {ansList}
                     </div>
+                    <Button variant="success" onClick={onAddAnswerClick}>
+                        Añadir respuesta
+                    </Button>
                 </Form>
                 </Card.Body>
             </Card>

@@ -6,6 +6,9 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup'
 import CardPregunta from '../../components/CardPregunta'
+import ReactDOM from 'react-dom'
+
+
 
 const ModalAgregarEncuesta = () => {
 
@@ -14,6 +17,21 @@ const ModalAgregarEncuesta = () => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+
+  const [cardList, setCardList] = useState([]);
+
+  const [count, setCount] = useState(1);
+
+  const onAddCardClick = event => {
+    setCount(count+1);
+    console.log(count);
+    setCardList(cardList.concat(<CardPregunta count={count}> </CardPregunta>));
+  }
+
+  const vaciarCardList = event => {
+    setCardList([]);
+    setShow(false);
+  } 
 
   return (
     <>
@@ -47,66 +65,18 @@ const ModalAgregarEncuesta = () => {
                 autoFocus
               />
             </Form.Group>
-            
-            <ListGroup as="ol" numbered>
-              <ListGroup.Item as="li">
-                <Card>
-                  <Card.Header>
-                    <Form.Group  controlId="FormEncuesta">
-                      <Form.Control
-                        type="text"
-                        placeholder="Pregunta 1"
-                        autoFocus
-                      />
-                    </Form.Group>
-                  </Card.Header>
-                  <Card.Body>
-                    <Form>
-                      <div>
-                        <Form.Check
-                          label="1"
-                          name="group1"
-                          type="radio"
-                          id="ola"
-                        />
-                        <Form.Check
-                          label="1"
-                          name="group1"
-                          type="radio"
-                          id="ola"
-                        />
-                      </div>
-                    </Form>
-                  </Card.Body>
-                </Card>
-              </ListGroup.Item>
 
-              <ListGroup.Item as="li">
-                <CardPregunta></CardPregunta> 
-              </ListGroup.Item>
-              
-              <ListGroup.Item as="li">
-                <CardPregunta></CardPregunta> 
-              </ListGroup.Item>
-              
-              <ListGroup.Item as="li">
-                <CardPregunta></CardPregunta> 
-              </ListGroup.Item>
-              
-              <ListGroup.Item as="li">
-                <CardPregunta></CardPregunta> 
-              </ListGroup.Item>
-
-              <ListGroup.Item as="li">
-                <CardPregunta></CardPregunta> 
-              </ListGroup.Item>
-
-            </ListGroup>
+            {cardList}
+            <Button variant="info" onClick={onAddCardClick}>
+              Agregar Pregunta
+            </Button>
           </Form>
+          
+          
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={vaciarCardList}>
             Cancelar
           </Button>
           <Button variant="primary" onClick={handleClose}>
