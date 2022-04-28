@@ -29,21 +29,33 @@ const ModalAgregarEncuesta = () => {
   const [validated, setValidated] = useState(false);
 
 
-  // const [id_encuesta, setId_encuesta] = useState(false);
-  // const [titulo_encuesta, setTitulo_encuesta] = useState(false);
-  // const [descripcion_encuesta, setDescripcion_encuesta] = useState(false);
-  // const [id_pregunta, setId_pregunta] = useState(false);
-  // const [enunciado_pregunta, setEnunciado_pregunta] = useState(false);
-  // const [id_alternativa, setId_alternativa] = useState(false);
-  // const [enunciado_alternativa, setEnunciado_alternativa] = useState(false);
-  // const [contador_alternativa, setContador_alternativa] = useState(false);
+  const [titulo_encuesta, setTitulo_encuesta] = useState(false);
+  const [descripcion_encuesta, setDescripcion_encuesta] = useState(false);
+  const [enunciado_pregunta, setEnunciado_pregunta] = useState(false);
+  const [enunciado_alternativa, setEnunciado_alternativa] = useState(false);
+  const [contador_alternativa, setContador_alternativa] = useState(false);
+
+  //encuesta => meter todo a un arreglo
+
+  const encuesta = {
+    titulo_encuesta: titulo_encuesta,
+    descripcion_encuesta: descripcion_encuesta,
+    pregunta:{
+      enunciado_pregunta: enunciado_pregunta,
+      alternativa:{
+        enunciado_alternativa: enunciado_alternativa,
+        contador_alternativa: contador_alternativa
+      }
+    }
+  }
 
   const handleSubmit = (e) => {
-    axios.post('http://localhost:5000/saveEncuesta', {id_encuesta, titulo_encuesta, descripcion_encuesta, id_pregunta, enunciado_pregunta, id_alternativa, enunciado_alternativa, contador_alternativa} )
+    axios.post('http://localhost:5000/saveEncuesta', {encuesta} )
       .then(res => {
         console.log(res);
       })
   }
+
 
   return (
     <>
