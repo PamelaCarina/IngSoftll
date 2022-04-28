@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, request
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy #lo mismo para sqlalchemy
+from sqlalchemy import func
 from flask_marshmallow import Marshmallow
 from pip import main
 
-app = Flask(__name__,template_folder="../Frontend")
+app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/flaskmysql'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -129,19 +130,25 @@ alternativa_schema = AlternativaSchema()
 def saveEncuesta():
     if request.method == 'POST':
         data = request.get_json()
-        id_encuesta = data['id_encuesta']
+        #id_encuesta = data['id_encuesta']
+        id_encuesta = db.session.query(func.max(Encuesta.id_encuesta))+1
+        max_id_pregunta = db.session.query(func.max(Pregunta.id_pregunta))
+        max_id_alternativa = db.session.query(func.max(Alternativa.id_alternativa))
         titulo_encuesta = data['titulo_encuesta']
         descripcion_encuesta = data['descripcion_encuesta']
         new_encuesta = Encuesta(id_encuesta, titulo_encuesta, descripcion_encuesta)
+        #for t in data['tag_encuesta']:
+        #    new_tag = Tag_encuesta(t['id_tag'], id_encuesta)
+        #    db.session.add(new_tag)
         #tag_encuesta = data['tag_encuesta']
         db.session.add(new_encuesta)
         for p in data['preguntas']:
-            id_pregunta = p['id_pregunta']
+            id_pregunta = p['id_pregunta'] + max_id_pregunta
             enunciado_pregunta = p['enunciado_pregunta']
             new_pregunta = Pregunta(id_pregunta, id_encuesta, enunciado_pregunta)
             db.session.add(new_pregunta)
             for a in p['alternativas']:
-                id_alternativa = data['id_alternativa']
+                id_alternativa = data['id_alternativa'] + max_id_alternativa
                 enunciado_alternativa = data['enunciado_alternativa']
                 contador_alternativa = data['contador_alternativa']
                 new_alternativa = Alternativa(id_alternativa, id_pregunta, enunciado_alternativa, contador_alternativa)
