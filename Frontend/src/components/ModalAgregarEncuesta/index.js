@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import axios from 'axios';
 
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
@@ -19,6 +20,9 @@ import Form from 'react-bootstrap/Form';
 //   //   contador_alternativa: number;
 //   // }[];
 // }
+import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup'
+import CardPregunta from '../../components/CardPregunta'
 
 const ModalAgregarEncuesta = () => {
 
@@ -55,6 +59,7 @@ const ModalAgregarEncuesta = () => {
         console.log(res);
       })
   }
+  
 
 
   return (
@@ -63,7 +68,7 @@ const ModalAgregarEncuesta = () => {
         Agregar Nueva Encuesta
       </Button>
 
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>Agregar Nueva Encuesta</Modal.Title>
         </Modal.Header>
@@ -73,39 +78,77 @@ const ModalAgregarEncuesta = () => {
             <Form.Group className="mb-3" controlId="FormEncuesta">
               <Form.Label>Título</Form.Label>
               <Form.Control
+                size="lg"
                 type="text"
                 placeholder="Ingrese el título de la encuesta"
                 autoFocus
               />
             </Form.Group>
-            <Form.Group
-              className="mb-3"
-              controlId="exampleForm.ControlTextarea1"
-            >
+            <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
               <Form.Label>Descripción</Form.Label>
               <Form.Control
+                as="textarea"
+                rows={3}
                 type="text"
                 placeholder="Ingrese la descripción de la encuesta"
                 autoFocus
               />
             </Form.Group>
+            
+            <ListGroup as="ol" numbered>
+              <ListGroup.Item as="li">
+                <Card>
+                  <Card.Header>
+                    <Form.Group  controlId="FormEncuesta">
+                      <Form.Control
+                        type="text"
+                        placeholder="Pregunta 1"
+                        autoFocus
+                      />
+                    </Form.Group>
+                  </Card.Header>
+                  <Card.Body>
+                    <Form>
+                      <div>
+                        <Form.Check
+                          label="1"
+                          name="group1"
+                          type="radio"
+                          id="ola"
+                        />
+                        <Form.Check
+                          label="1"
+                          name="group1"
+                          type="radio"
+                          id="ola"
+                        />
+                      </div>
+                    </Form>
+                  </Card.Body>
+                </Card>
+              </ListGroup.Item>
 
-            <Form.Group>
-              <Form.Label>Ingrese la pregunta</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Ingrese la pregunta"
-                autoFocus
-              />
-              <Form.Check
-                inline
-                label="1"
-                name="group1"
-                type="radio"
-                id="ola"
-              />
+              <ListGroup.Item as="li">
+                <CardPregunta></CardPregunta> 
+              </ListGroup.Item>
+              
+              <ListGroup.Item as="li">
+                <CardPregunta></CardPregunta> 
+              </ListGroup.Item>
+              
+              <ListGroup.Item as="li">
+                <CardPregunta></CardPregunta> 
+              </ListGroup.Item>
+              
+              <ListGroup.Item as="li">
+                <CardPregunta></CardPregunta> 
+              </ListGroup.Item>
 
-            </Form.Group>
+              <ListGroup.Item as="li">
+                <CardPregunta></CardPregunta> 
+              </ListGroup.Item>
+
+            </ListGroup>
           </Form>
         </Modal.Body>
 

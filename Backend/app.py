@@ -1,12 +1,21 @@
-from flask import Flask, jsonify
-from flask import request
+from flask import Flask, jsonify, request
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy #lo mismo para sqlalchemy
 from flask_marshmallow import Marshmallow
+from pip import main
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder="../Frontend")
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Crimax123@localhost/flaskmysql'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app) #le pasaremos los datos de arriba al ORM, una vez esto se ejecute nos entregara una ainstancia de una base de datos guardada en la vairable db
+ma = Marshmallow(app) #instancia del modulo de marshmallow que nos permiote la interaccion
+
+Tag_encuesta = db.Table('Tag_encuesta', #TABLA MANY TO MANY QUE RELACIONA A ENCUESTADO CON ENCUESTA
+    db.Column('id_tag', db.Integer, db.ForeignKey('tag.id_tag')),
+    db.Column('id_encuesta', db.Integer, db.ForeignKey('encuesta.id_encuesta'))
+)
+
 
 Contesta_encuesta = db.Table('Contesta_encuesta',  #TABLA MANY TO MANY QUE RELACIONA A ENCUESTADO CON ENCUESTA
     db.Column('id_encuestado', db.Integer, db.ForeignKey('encuestado.id_encuestado')),
@@ -25,27 +34,34 @@ class Encuestado(db.Model):  # CLASE ENCUESTADO
         self.correo = correo
 
 
-class Tag(db.Model):  # CLASE TAG
-    tag = db.Column(db.Integer, primary_key=True)
+class Tag(db.Model): #CLASE TAG
+    id_tag = db.Column(db.Integer, primary_key = True)
+    tag = db.Column(db.String(20))
+    encuestas = db.relationship('Encuesta', secondary = Tag_encuesta, backref = db.backref('Tags_backref'), lazy = 'dynamic')
 
+    def __init__(self, tag,):
+        self.tag = tag
 
-class Editor(db.Model):  # CLASE EDITOR
-    id_editor = user = db.Column(db.Integer, primary_key=True)
+class Editor(db.Model): #CLASE EDITOR
+    id_editor = user = db.Column(db.Integer, primary_key = True)
     user = db.Column(db.String(30))
-    password = db.Column(db.String(30), unique=True)
+    password = db.Column(db.String(30), unique = True)
+    encuestas = db.relationship('Encuesta', backref = 'editor')
 
     def __init__(self, user, password):
         self.user = user
         self.password = password
 
 
-class Encuesta(db.Model):  # CLASE ENCUESTA
-    id_encuesta = db.Column(db.Integer, primary_key=True)
+class Encuesta(db.Model): #CLASE ENCUESTA
+    id_encuesta = db.Column(db.Integer, primary_key = True)
     titulo = db.Column(db.String(200))
     fecha_creacion = db.Column(db.String(30))
-    user = db.Column(db.String(30), unique=True)
-    encuestados = db.relationship('Encuestado', secondary=Contesta_encuesta, backref=db.backref('encuestas_backref'),
-                                  lazy='dynamic')
+    user = db.Column(db.String(30), unique = True)
+    encuestados =db.relationship('Encuestado', secondary = Contesta_encuesta, backref = db.backref('encuestas_backref'), lazy = 'dynamic')
+    tags =db.relationship('Tag', secondary = Tag_encuesta, backref = db.backref('encuestas_backref'), lazy = 'dynamic')
+    id_editor = db.Column(db.Integer, db.ForeignKey('editor.id_editor'))
+    preguntas = db.relationship('Pregunta', backref = 'encuesta')
 
     def __init__(self, id_encuesta, titulo, fecha_creacion, user):
         self.id_encuesta = id_encuesta
@@ -57,20 +73,19 @@ class Encuesta(db.Model):  # CLASE ENCUESTA
 class Pregunta(db.Model):  # CLASE PREGUNTA
     id_pregunta = db.Column(db.Integer, primary_key=True)
     enunciado = db.Column(db.String(200))
-    tipo_pregunta = db.Column(db.String(30))
-    id_encuesta = db.Column(db.Integer)
+    id_encuesta = db.Column(db.Integer, db.ForeignKey('encuesta.id_encuesta'))
+    alternativas = db.relationship('Alternativa', backref='pregunta')
 
-    def __init__(self, id_pregunta, enunciado, tipo_pregunta, id_encuesta):
+    def __init__(self, id_pregunta, enunciado):
         self.id_pregunta = id_pregunta
         self.enunciado = enunciado
-        self.tipo_pregunta = tipo_pregunta
-        self.id_encuesta = id_encuesta
 
 
-class Alternativa(db.Model):  # CLASE ALTERNATIVA
-    id_alternativa = db.Column(db.Integer, primary_key=True)
+class Alternativa(db.Model): #CLASE ALTERNATIVA
+    id_alternativa = db.Column(db.Integer, primary_key = True)
     enunciado = db.Column(db.String(200))
     contador = db.Column(db.String(30))
+    id_pregunta = db.Column(db.Integer, db.ForeignKey('pregunta.id_pregunta'))
 
     def __init__(self, id_alternativa, enunciado, contador):
         self.id_alternativa = id_alternativa
@@ -109,14 +124,6 @@ class AlternativaSchema(ma.Schema):
 
 alternativa_schema = AlternativaSchema()
 
-@app.route("/")
-def dashboard():
-    data = {
-        "hola" : 'como estas',
-        "bien" : 'y tu?'
-    }
-    return jsonify(data)
-    #return "Mankk skt1Completo"
 
 @app.route("/saveEncuesta", methods=['POST'])
 def saveEncuesta():
@@ -144,7 +151,9 @@ def saveEncuesta():
 
 @app.route("/getEncuestas", methods=['GET'])
 def getEncuestas():
-    return "Holi, soy una encuesta OwO"
+    encuestas = Encuesta.query.all()  # consultamos todas las tareas, esto lo guardaremos en una variable llamada all_tasks
+    result = encuesta_schema.dump(encuestas)  # necesitamos usar desde el schema el metodo llamado dump que utilizamos losmetodos que nos ha devuelto la consulta anterior
+    return jsonify(result)
 
 
 if __name__ == "__main__":

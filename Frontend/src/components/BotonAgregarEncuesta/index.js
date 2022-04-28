@@ -6,7 +6,6 @@ const BotonAgregarEncuesta = () =>{
   return (
     <div className="App">
         <div>
-          <Button variant="primary" size="lg">Agregar</Button>{' '}
           <Button variant="secondary" size="lg">Cerrar sesión</Button>{' '}
         </div>
     </div>
