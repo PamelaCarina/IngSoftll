@@ -1,12 +1,15 @@
-from flask import Flask, jsonify
-from flask import request
+from flask import Flask, jsonify, request
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy #lo mismo para sqlalchemy
 from flask_marshmallow import Marshmallow
+from pip import main
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder="../Frontend")
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Crimax123@localhost/flaskmysql'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app) #le pasaremos los datos de arriba al ORM, una vez esto se ejecute nos entregara una ainstancia de una base de datos guardada en la vairable db
+ma = Marshmallow(app) #instancia del modulo de marshmallow que nos permiote la interaccion
 
 Tag_encuesta = db.Table('Tag_encuesta', #TABLA MANY TO MANY QUE RELACIONA A ENCUESTADO CON ENCUESTA
     db.Column('id_tag', db.Integer, db.ForeignKey('tag.id_tag')),
@@ -121,14 +124,6 @@ class AlternativaSchema(ma.Schema):
 
 alternativa_schema = AlternativaSchema()
 
-@app.route("/")
-#def dashboard():
-#    data = {
-#        "hola" : 'como estas',
-#        "bien" : 'y tu?'
-#    }
-#    return jsonify(data)
-    #return "Mankk skt1Completo"
 
 @app.route("/saveEncuesta", methods=['POST'])
 def saveEncuesta():
@@ -156,7 +151,9 @@ def saveEncuesta():
 
 @app.route("/getEncuestas", methods=['GET'])
 def getEncuestas():
-    return "Holi, soy una encuesta OwO"
+    encuestas = Encuesta.query.all()  # consultamos todas las tareas, esto lo guardaremos en una variable llamada all_tasks
+    result = encuesta_schema.dump(encuestas)  # necesitamos usar desde el schema el metodo llamado dump que utilizamos losmetodos que nos ha devuelto la consulta anterior
+    return jsonify(result)
 
 
 if __name__ == "__main__":
