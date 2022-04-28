@@ -3,14 +3,47 @@ import React, {useState} from "react";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import FormControl from 'react-bootstrap/FormControl';
+
+// id_encuesta, titulo_encuesta, descripcion_encuesta, id_pregunta, enunciado_pregunta, id_alternativa, enunciado_alternativa, contador_alternativa
+
+// interface props{
+//   handleAgregarEncuesta: (nuevaEncuesta) => void;
+//   // agregarEncuesta:{
+//   //   id_encuesta: number;
+//   //   titulo_encuesta: string;
+//   //   descripcion_encuesta: string;
+//   //   id_pregunta: number;
+//   //   enunciado_pregunta: string;
+//   //   id_alternativa: number;
+//   //   enunciado_alternativa: string;
+//   //   contador_alternativa: number;
+//   // }[];
+// }
 
 const ModalAgregarEncuesta = () => {
 
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const [validated, setValidated] = useState(false);
+
+
+  // const [id_encuesta, setId_encuesta] = useState(false);
+  // const [titulo_encuesta, setTitulo_encuesta] = useState(false);
+  // const [descripcion_encuesta, setDescripcion_encuesta] = useState(false);
+  // const [id_pregunta, setId_pregunta] = useState(false);
+  // const [enunciado_pregunta, setEnunciado_pregunta] = useState(false);
+  // const [id_alternativa, setId_alternativa] = useState(false);
+  // const [enunciado_alternativa, setEnunciado_alternativa] = useState(false);
+  // const [contador_alternativa, setContador_alternativa] = useState(false);
+
+  const handleSubmit = (e) => {
+    axios.post('http://localhost:5000/saveEncuesta', {id_encuesta, titulo_encuesta, descripcion_encuesta, id_pregunta, enunciado_pregunta, id_alternativa, enunciado_alternativa, contador_alternativa} )
+      .then(res => {
+        console.log(res);
+      })
+  }
 
   return (
     <>
@@ -24,7 +57,7 @@ const ModalAgregarEncuesta = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <Form>
+          <Form validated={validated} onSubmit = {handleSubmit}>
             <Form.Group className="mb-3" controlId="FormEncuesta">
               <Form.Label>Título</Form.Label>
               <Form.Control
