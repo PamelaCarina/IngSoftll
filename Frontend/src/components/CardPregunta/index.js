@@ -7,17 +7,30 @@ import Button from 'react-bootstrap/esm/Button';
 
 interface props {
     count: Number;
+    obtenerPregunta: (enunciado_pregunta) => void;
+    obtenerRespuesta: (enunciado_respuesta) => void;
 }
 
-const CardPregunta: FC<props> = ({count}) => {
-    const [ansList, setAnsList] = useState([]);
+const CardPregunta: FC<props> = ({count, obtenerPregunta, obtenerRespuesta}) => {
 
+    const [ansList, setAnsList] = useState([]);
     const [countAns, setCountAns] = useState(1);
 
+    const [enunciado_pregunta, setEnunciado_pregunta] = useState([]);
+    const [enunciado_respuesta, setEnunciado_respuesta] = useState([]);
+
     const onAddAnswerClick = event => {
+        obtenerPregunta(enunciado_pregunta)
+        console.log("CARD",enunciado_pregunta);
+        console.log("RESPUESTA", ansList);
         setCountAns(countAns+1);
-        setAnsList(ansList.concat(<Alternativa countAns={countAns}> </Alternativa>));
+        setAnsList(ansList.concat(<Alternativa countAns={countAns} obtenerRespuestas={obtenerRespuestas}> </Alternativa>));
     }
+
+    const obtenerRespuestas = (e) => {
+        setEnunciado_respuesta()
+    }
+
     return(
         <>
             <Card>
@@ -27,6 +40,7 @@ const CardPregunta: FC<props> = ({count}) => {
                     type="text"
                     placeholder = {`Pregunta ${count}`}
                     autoFocus
+                    onChange={(e) => setEnunciado_pregunta(e.target.value)}
                     />
                 </Form.Group>
                 </Card.Header>
@@ -41,6 +55,9 @@ const CardPregunta: FC<props> = ({count}) => {
                 </Form>
                 </Card.Body>
             </Card>
+
+            
+            {obtenerRespuesta(enunciado_respuesta)}
         </>
     );
 }

@@ -1,17 +1,28 @@
-import React, {useState, FC} from 'react'
+import { Button } from 'bootstrap';
+import React, {useState, FC} from 'react';
 
-import Form from 'react-bootstrap/Form'
+import Form from 'react-bootstrap/Form';
 
 interface props {
-    countAns: Number;
+    countAns:? Number;
+    obtenerAlternativas:? (enunciado_alternativa) => void;
 }
 
-const Alternativa: FC<props> = ({countAns}) => {
-    return(
-        <Form.Control size="sm" type="text" placeholder={`Respuesta ${countAns}`}>
+const Alternativa: FC<props> = ({countAns, obtenerAlternativa}) => {
 
-        </Form.Control>
+    const [enunciado_alternativa, setEnunciado_alternativa] = useState({});
+    console.log("ALTERNATIVA",enunciado_alternativa);
+
+    
+    return(
+        <>
+            <Form.Control 
+            size="sm" 
+            type="text" 
+            placeholder={`Respuesta ${countAns}`}
+            onChange={(e) => setEnunciado_alternativa(e.target.value)}
+            />
+        </>
     )
 }
-
 export default Alternativa;
