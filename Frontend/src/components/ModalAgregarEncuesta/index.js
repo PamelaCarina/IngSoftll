@@ -4,9 +4,9 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
-import ListGroup from 'react-bootstrap/ListGroup'
+import InputGroup from 'react-bootstrap/InputGroup'
 import CardPregunta from '../../components/CardPregunta'
-import ReactDOM from 'react-dom'
+import FormControl from 'react-bootstrap/FormControl'
 
 
 
@@ -31,6 +31,7 @@ const ModalAgregarEncuesta = () => {
   const vaciarCardList = event => {
     setCardList([]);
     setShow(false);
+    setCount(1);
   } 
 
   return (
@@ -46,25 +47,30 @@ const ModalAgregarEncuesta = () => {
 
         <Modal.Body>
           <Form>
-            <Form.Group className="mb-3" controlId="FormEncuesta">
-              <Form.Label>Título</Form.Label>
-              <Form.Control
+            <InputGroup className="mb-3">
+              <FormControl
+                placeholder="Título"
+                aria-label="Título"
+                aria-describedby="basic-addon2"
                 size="lg"
-                type="text"
-                placeholder="Ingrese el título de la encuesta"
-                autoFocus
               />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-              <Form.Label>Descripción</Form.Label>
-              <Form.Control
+              <Button variant="outline-secondary" id="button-addon2">
+                Listo
+              </Button>
+            </InputGroup>
+
+            <InputGroup className="mb-3">
+              <FormControl
+                placeholder="Descripción"
+                aria-label="Descripción"
+                aria-describedby="basic-addon2"
                 as="textarea"
                 rows={3}
-                type="text"
-                placeholder="Ingrese la descripción de la encuesta"
-                autoFocus
               />
-            </Form.Group>
+              <Button variant="outline-secondary" id="button-addon2">
+                Listo
+              </Button>
+            </InputGroup>
 
             {cardList}
             <Button variant="info" onClick={onAddCardClick}>

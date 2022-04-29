@@ -1,6 +1,8 @@
 import React, {useState, FC} from 'react'
 
 import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+import InputGroup from 'react-bootstrap/InputGroup'
 
 interface props {
     countAns: Number;
@@ -8,9 +10,19 @@ interface props {
 
 const Alternativa: FC<props> = ({countAns}) => {
     return(
-        <Form.Control size="sm" type="text" placeholder={`Respuesta ${countAns}`}>
+        <>
+            <InputGroup>
+                <Form.Control size="sm" type="text" placeholder={`Respuesta ${countAns}`}>
 
-        </Form.Control>
+                </Form.Control>
+                <Button variant="outline-secondary" id="button-addon2">
+                    Listo
+                </Button>
+            </InputGroup>
+            
+        </>
+        
+        
     )
 }
 
