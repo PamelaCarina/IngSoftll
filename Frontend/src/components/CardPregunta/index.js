@@ -4,45 +4,44 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import Alternativa from '../../components/Alternativa';
 import Button from 'react-bootstrap/esm/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
 
-interface props {
-    count: Number;
-    obtenerPregunta: (enunciado_pregunta) => void;
-    obtenerRespuesta: (enunciado_respuesta) => void;
+interface props{
+    count: number;
 }
 
-const CardPregunta: FC<props> = ({count, obtenerPregunta, obtenerRespuesta}) => {
+const CardPregunta: FC<props> = ({count}) => {
 
     const [ansList, setAnsList] = useState([]);
     const [countAns, setCountAns] = useState(1);
 
-    const [enunciado_pregunta, setEnunciado_pregunta] = useState([]);
-    const [enunciado_respuesta, setEnunciado_respuesta] = useState([]);
+    const [enunciado_alternativaCard, setEnunciado_alternativaCard] = useState({});
 
-    const onAddAnswerClick = event => {
-        obtenerPregunta(enunciado_pregunta)
-        console.log("CARD",enunciado_pregunta);
-        console.log("RESPUESTA", ansList);
-        setCountAns(countAns+1);
-        setAnsList(ansList.concat(<Alternativa countAns={countAns} obtenerRespuestas={obtenerRespuestas}> </Alternativa>));
+    const obtenerAlternativaCard = (enunciado_alternativa) => {
+        setEnunciado_alternativaCard(enunciado_alternativa);
+        console.log("ALTERNATIVA CARD:", enunciado_alternativa);
     }
 
-    const obtenerRespuestas = (e) => {
-        setEnunciado_respuesta()
+    const onAddAnswerClick = event => {
+        setCountAns(countAns+1);
+        setAnsList(ansList.concat(<Alternativa countAns={countAns} obtenerAlternativaCard={obtenerAlternativaCard}/>));
     }
 
     return(
         <>
             <Card>
                 <Card.Header>
-                <Form.Group  controlId="FormEncuesta">
-                    <Form.Control
-                    type="text"
-                    placeholder = {`Pregunta ${count}`}
-                    autoFocus
-                    onChange={(e) => setEnunciado_pregunta(e.target.value)}
-                    />
-                </Form.Group>
+                    <InputGroup controlId="FormEncuesta">
+                        <FormControl
+                            placeholder={`Pregunta ${count}`}
+                            aria-label="Título"
+                            aria-describedby="basic-addon2"
+                        />
+                        <Button variant="outline-secondary" id="button-addon2">
+                            Listo
+                        </Button>
+                    </InputGroup>
                 </Card.Header>
                 <Card.Body>
                 <Form>
@@ -55,9 +54,6 @@ const CardPregunta: FC<props> = ({count, obtenerPregunta, obtenerRespuesta}) => 
                 </Form>
                 </Card.Body>
             </Card>
-
-            
-            {obtenerRespuesta(enunciado_respuesta)}
         </>
     );
 }

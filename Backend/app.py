@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, jsonify, request
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy #lo mismo para sqlalchemy
@@ -12,6 +14,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app) #le pasaremos los datos de arriba al ORM, una vez esto se ejecute nos entregara una ainstancia de una base de datos guardada en la vairable db
 ma = Marshmallow(app) #instancia del modulo de marshmallow que nos permiote la interaccion
 
+""" 
 Tag_encuesta = db.Table('Tag_encuesta', #TABLA MANY TO MANY QUE RELACIONA A ENCUESTADO CON ENCUESTA
     db.Column('id_tag', db.Integer, db.ForeignKey('tag.id_tag')),
     db.Column('id_encuesta', db.Integer, db.ForeignKey('encuesta.id_encuesta'))
@@ -42,7 +45,6 @@ class Tag(db.Model): #CLASE TAG
 
     def __init__(self, tag,):
         self.tag = tag
-
 class Editor(db.Model): #CLASE EDITOR
     id_editor = user = db.Column(db.Integer, primary_key = True)
     user = db.Column(db.String(30))
@@ -52,23 +54,25 @@ class Editor(db.Model): #CLASE EDITOR
     def __init__(self, user, password):
         self.user = user
         self.password = password
-
+"""
 
 class Encuesta(db.Model): #CLASE ENCUESTA
     id_encuesta = db.Column(db.Integer, primary_key = True)
-    titulo = db.Column(db.String(200))
-    fecha_creacion = db.Column(db.String(30))
-    user = db.Column(db.String(30), unique = True)
-    encuestados =db.relationship('Encuestado', secondary = Contesta_encuesta, backref = db.backref('encuestas_backref'), lazy = 'dynamic')
-    tags =db.relationship('Tag', secondary = Tag_encuesta, backref = db.backref('encuestas_backref'), lazy = 'dynamic')
-    id_editor = db.Column(db.Integer, db.ForeignKey('editor.id_editor'))
+    titulo_encuesta = db.Column(db.String(200))
+    descripcion_encuesta = db.Column(db.String(200))
+    #fecha_creacion = db.Column(db.String(30))
+    #user = db.Column(db.String(30), unique = True)
+    #encuestados =db.relationship('Encuestado', secondary = Contesta_encuesta, backref = db.backref('encuestas_backref'), lazy = 'dynamic')
+    #tags =db.relationship('Tag', secondary = Tag_encuesta, backref = db.backref('encuestas_backref'), lazy = 'dynamic')
+    #id_editor = db.Column(db.Integer, db.ForeignKey('editor.id_editor'))
     preguntas = db.relationship('Pregunta', backref = 'encuesta')
 
-    def __init__(self, id_encuesta, titulo, fecha_creacion, user):
+    def __init__(self, id_encuesta, titulo_encuesta, descripcion_encuesta):
         self.id_encuesta = id_encuesta
-        self.titulo = titulo
-        self.fecha_creacion = fecha_creacion
-        self.user = user
+        self.titulo_encuesta = titulo_encuesta
+        self.descripcion_encuesta= descripcion_encuesta
+        #self.fecha_creacion = fecha_creacion
+        #self.user = user
 
 
 class Pregunta(db.Model):  # CLASE PREGUNTA
@@ -77,7 +81,8 @@ class Pregunta(db.Model):  # CLASE PREGUNTA
     id_encuesta = db.Column(db.Integer, db.ForeignKey('encuesta.id_encuesta'))
     alternativas = db.relationship('Alternativa', backref='pregunta')
 
-    def __init__(self, id_pregunta, enunciado):
+    def __init__(self, id_encuesta,id_pregunta, enunciado):
+        self.id_encuesta = id_encuesta
         self.id_pregunta = id_pregunta
         self.enunciado = enunciado
 
@@ -88,8 +93,9 @@ class Alternativa(db.Model): #CLASE ALTERNATIVA
     contador = db.Column(db.String(30))
     id_pregunta = db.Column(db.Integer, db.ForeignKey('pregunta.id_pregunta'))
 
-    def __init__(self, id_alternativa, enunciado, contador):
+    def __init__(self, id_alternativa, id_pregunta, enunciado, contador):
         self.id_alternativa = id_alternativa
+        self.id_pregunta = id_pregunta
         self.enunciado = enunciado
         self.contador = contador
 
@@ -131,29 +137,32 @@ def saveEncuesta():
     if request.method == 'POST':
         data = request.get_json()
         #id_encuesta = data['id_encuesta']
-        id_encuesta = db.session.query(func.max(Encuesta.id_encuesta))+1
-        max_id_pregunta = db.session.query(func.max(Pregunta.id_pregunta))
-        max_id_alternativa = db.session.query(func.max(Alternativa.id_alternativa))
+        id_encuesta = db.session.query(Encuesta).select_from(Encuesta).count()
+        max_id_pregunta = db.session.query(Pregunta).select_from(Pregunta).count()+1
+        max_id_alternativa = db.session.query(Alternativa).select_from(Pregunta).count()+1
         titulo_encuesta = data['titulo_encuesta']
         descripcion_encuesta = data['descripcion_encuesta']
-        new_encuesta = Encuesta(id_encuesta, titulo_encuesta, descripcion_encuesta)
+        new_encuesta = Encuesta(id_encuesta+1, titulo_encuesta, descripcion_encuesta)
         #for t in data['tag_encuesta']:
         #    new_tag = Tag_encuesta(t['id_tag'], id_encuesta)
         #    db.session.add(new_tag)
         #tag_encuesta = data['tag_encuesta']
         db.session.add(new_encuesta)
         for p in data['preguntas']:
-            id_pregunta = p['id_pregunta'] + max_id_pregunta
+            #id_pregunta = p['id_pregunta']
             enunciado_pregunta = p['enunciado_pregunta']
-            new_pregunta = Pregunta(id_pregunta, id_encuesta, enunciado_pregunta)
+            new_pregunta = Pregunta(max_id_pregunta, id_encuesta+1, enunciado_pregunta)
             db.session.add(new_pregunta)
             for a in p['alternativas']:
-                id_alternativa = data['id_alternativa'] + max_id_alternativa
-                enunciado_alternativa = data['enunciado_alternativa']
-                contador_alternativa = data['contador_alternativa']
-                new_alternativa = Alternativa(id_alternativa, id_pregunta, enunciado_alternativa, contador_alternativa)
+                #id_alternativa = a['id_alternativa']
+                enunciado_alternativa = a['enunciado_alternativa']
+                contador_alternativa = a['contador_alternativa']
+                new_alternativa = Alternativa(max_id_alternativa, max_id_pregunta, enunciado_alternativa, contador_alternativa)
                 db.session.add(new_alternativa)
+                max_id_alternativa += 1
+            max_id_pregunta += 1
         db.session.commit()
+        return "ok"
 
 
 @app.route("/getEncuestas", methods=['GET'])

@@ -5,9 +5,9 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
-import ListGroup from 'react-bootstrap/ListGroup'
+import InputGroup from 'react-bootstrap/InputGroup'
 import CardPregunta from '../../components/CardPregunta'
-import ReactDOM from 'react-dom'
+import FormControl from 'react-bootstrap/FormControl'
 
 // id_encuesta, titulo_encuesta, descripcion_encuesta, id_pregunta, enunciado_pregunta, id_alternativa, enunciado_alternativa, contador_alternativa
 
@@ -21,15 +21,6 @@ const ModalAgregarEncuesta = () => {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
-  const [titulo_encuesta, setTitulo_encuesta] = useState([]);
-  const [descripcion_encuesta, setDescripcion_encuesta] = useState([]);
-
-  const [preguntas, setPreguntas] = useState([]);
-  const [enunciado_pregunta, setEnunciado_pregunta] = useState([]);
-
-  const [alternativas, setAlternativas] = useState([]);
-  const [enunciado_alternativa, setEnunciado_alternativa] = useState([]);
 
   // const encuesta = {
   //   titulo_encuesta: titulo_encuesta,
@@ -51,32 +42,18 @@ const ModalAgregarEncuesta = () => {
   //   ]
   // }
 
-  const encuesta = {
-    preguntas: preguntas
-  }
+  // const encuesta = {
+  //   preguntas: preguntas
+  // }
 
 
-  const handleSubmit = (e) => {
-    axios.post('http://localhost:5000/saveEncuesta', {encuesta} )
-      .then(res => {
-        console.log(res);
-      })
-    handleClose(true);
-  }
-  
-  const obtenerPregunta = (enunciado_pregunta) => {
-    // let aux = [...enunciado_pregunta];
-    // setEnunciado_pregunta(aux);
-    setEnunciado_pregunta(enunciado_pregunta);
-    console.log("MODAL:",enunciado_pregunta);
-  }
-
-  console.log("enunciados preguntas", enunciado_pregunta)
-
-  const obtenerRespuesta = (e) => {
-    let aux = [...enunciado_alternativa];
-    setEnunciado_alternativa(aux);
-  }
+  // const handleSubmit = (e) => {
+  //   axios.post('http://localhost:5000/saveEncuesta', {encuesta} )
+  //     .then(res => {
+  //       console.log(res);
+  //     })
+  //   handleClose(true);
+  // }
 
   const [cardList, setCardList] = useState([]);
 
@@ -85,12 +62,13 @@ const ModalAgregarEncuesta = () => {
   const onAddCardClick = event => {
     setCount(count+1);
     console.log(count);
-    setCardList(cardList.concat(<CardPregunta count={count} obtenerPregunta={obtenerPregunta} obtenerRespuesta={obtenerRespuesta}> </CardPregunta>));
+    setCardList(cardList.concat(<CardPregunta count={count}> </CardPregunta>));
   }
 
   const vaciarCardList = event => {
     setCardList([]);
     setShow(false);
+    setCount(1);
   } 
 
   return (
@@ -106,27 +84,34 @@ const ModalAgregarEncuesta = () => {
 
         <Modal.Body>
           <Form>
-            <Form.Group className="mb-3" controlId="FormEncuesta">
-              <Form.Label>Título</Form.Label>
-              <Form.Control
+            <InputGroup className="mb-3">
+              <FormControl
+                placeholder="Título"
+                aria-label="Título"
+                aria-describedby="basic-addon2"
                 size="lg"
                 type="text"
-                placeholder="Ingrese el título de la encuesta"
                 autoFocus
-                onChange={(e) => setTitulo_encuesta(e.target.value)}
               />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-              <Form.Label>Descripción</Form.Label>
-              <Form.Control
+              <Button variant="outline-secondary" id="button-addon2">
+                Listo
+              </Button>
+            </InputGroup>
+
+            <InputGroup className="mb-3">
+              <FormControl
+                placeholder="Descripción"
+                aria-label="Descripción"
+                aria-describedby="basic-addon2"
                 as="textarea"
                 rows={3}
                 type="text"
-                placeholder="Ingrese la descripción de la encuesta"
                 autoFocus
-                onChange={(e) => setDescripcion_encuesta(e.target.value)}
               />
-            </Form.Group>
+              <Button variant="outline-secondary" id="button-addon2">
+                Listo
+              </Button>
+            </InputGroup>
 
             {cardList}
 
@@ -142,7 +127,7 @@ const ModalAgregarEncuesta = () => {
           <Button variant="secondary" onClick={vaciarCardList}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSubmit}>
+          <Button variant="primary" onClick={vaciarCardList}>
             Guardar Encuesta
           </Button>
         </Modal.Footer>
