@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from pip import main
+from flask_cors import CORS
 
 ####### APP CONFIG (APP, DB, MAIL) #######
 app = Flask(__name__)
+cors = CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app) #le pasaremos los datos de arriba al ORM, una vez esto se ejecute nos entregara una ainstancia de una base de datos guardada en la vairable db
@@ -148,23 +149,44 @@ class AlternativaSchema(ma.Schema):
 alternativa_schema = AlternativaSchema()
 alternativa_schema = AlternativaSchema(many=True)
 
+
+
 ####### RUTAS #######
 
 ###ENCUESTADO###
-@app.route("/saveRespuestas")
-@app.route("/showEncuesta")
+#@app.route("/saveRespuestas")
+@app.route("/showEncuesta/<idEncuesta>", methods=['GET'])
+def showEncuesta(idEncuesta):
+    if request.method == 'GET':
+        print(idEncuesta)
+        #encuesta = db.session.query(Encuesta).join(Pregunta).where(Pregunta.id_encuesta == 1).all()
+        encuesta = db.session.query(Encuesta).where(Encuesta.id_encuesta == idEncuesta)
+        preguntas = db.session.query(Pregunta).where(Pregunta.id_encuesta == idEncuesta)
+        alternativas = db.session.query(Alternativa).join(Pregunta).where(Alternativa.id_pregunta == Pregunta.id_pregunta and Pregunta.id_encuesta == idEncuesta).all()
+        resultE = encuesta_schema.dump(encuesta)
+        resultP = pregunta_schema.dump(preguntas)
+        resultA = alternativa_schema.dump(alternativas)
+        #print(resultA)
+        return jsonify(resultE, resultP, resultA)
+
+
 
 ###EDITOR###
-@app.route("/login")
-@app.route("/signIn")
-@app.route("/listadoEncuestas")
-@app.route("/listadoEncuestados")
-@app.route("/sendEMails")
-@app.route("/editEncuesta")
-@app.route("/deleteEncuesta")
-@app.route("/editEncuestado")
-@app.route("/deleteEncuestado")
-@app.route("/ingresarEncuestado")
+#@app.route("/login")
+#@app.route("/signIn")
+@app.route("/listadoEncuestas/<idEditor>", methods=['GET'])
+def listaEncuestas(idEditor):
+    encuestasEd = db.session.query(Encuesta).where(Encuesta.id_editor == idEditor)
+    result = encuesta_schema.dump(encuestasEd)
+    return jsonify(result)
+
+#@app.route("/listadoEncuestados")
+#@app.route("/sendEMails")
+#@app.route("/editEncuesta")
+#@app.route("/deleteEncuesta")
+#@app.route("/editEncuestado")
+#@app.route("/deleteEncuestado")
+#@app.route("/ingresarEncuestado")
 
 @app.route("/saveEncuesta", methods=['POST'])
 def saveEncuesta():
