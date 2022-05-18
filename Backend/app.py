@@ -8,40 +8,36 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app) #le pasaremos los datos de arriba al ORM, una vez esto se ejecute nos entregara una ainstancia de una base de datos guardada en la vairable db
-ma = Marshmallow(app) #instancia del modulo de marshmallow que nos permiote la interaccion
+db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 ####### MODELOS Y SCHEMAS #######
 Tag_encuesta = db.Table('Tag_encuesta', #TABLA MANY TO MANY QUE RELACIONA A ENCUESTADO CON ENCUESTA
-    db.Column('id_tag', db.Integer, db.ForeignKey('tag.id_tag')),
+    db.Column('tag', db.String(20), db.ForeignKey('tag.tag')),
     db.Column('id_encuesta', db.Integer, db.ForeignKey('encuesta.id_encuesta'))
 )
 
 Contesta_encuesta = db.Table('Contesta_encuesta',  #TABLA MANY TO MANY QUE RELACIONA A ENCUESTADO CON ENCUESTA
-    db.Column('id_encuestado', db.Integer, db.ForeignKey('encuestado.id_encuestado')),
+    db.Column('correo_encuestado', db.String(40), db.ForeignKey('encuestado.correo_encuestado')),
     db.Column('id_encuesta', db.Integer, db.ForeignKey('encuesta.id_encuesta')),
     db.Column('fecha_contestacion', db.String(30))
 )
 
 class Encuestado(db.Model):  # CLASE ENCUESTADO
-    id_encuestado = db.Column(db.Integer, primary_key=True)
-    correo_encuestado = db.Column(db.String(40))
+    correo_encuestado = db.Column(db.String(40), primary_key=True)
     encuestas = db.relationship('Encuesta', secondary=Contesta_encuesta, backref=db.backref('Encuestados_backref'),
                                 lazy='dynamic')
 
-    def __init__(self, id_encuestado, correo_encuestado):
-        self.id_encuestado = id_encuestado
+    def __init__(self, correo_encuestado):
         self.correo_encuestado = correo_encuestado
 
 
 class Tag(db.Model): #CLASE TAG
-    id_tag = db.Column(db.Integer, primary_key=True)
-    nombre_tag = db.Column(db.String(20), unique=True)
+    tag = db.Column(db.String(20), primary_key=True)
     encuestas = db.relationship('Encuesta', secondary=Tag_encuesta, backref=db.backref('Tags_backref'), lazy = 'dynamic')
 
-    def __init__(self, id_tag, nombre_tag):
-        self.id_tag = id_tag
-        self.nombre_tag = nombre_tag
+    def __init__(self, tag):
+        self.tag = tag
 
 
 class Editor(db.Model): #CLASE EDITOR
@@ -99,52 +95,51 @@ class Encuesta(db.Model): #CLASE ENCUESTA
         self.fecha_creacion = fecha_creacion
 
 
-db.create_all() #con este metodo crearemos todas nuestras tablas al instante
+db.create_all()
 
 
 class EditorSchema(ma.Schema):
-    class Meta: #definimos una clase meta
-        fields = ('id_editor', 'correo_editor', 'password') #campos que queremos obtener cada vez que interactuemos con este esquema
+    class Meta:
+        fields = ('id_editor', 'correo_editor', 'password')
 
-editor_schema = EditorSchema() #instancia de un task schema
-editor_schema = EditorSchema(many=True) #instancia en caso de querer crear mas de un task schema
+editor_schema = EditorSchema()
+editor_schema = EditorSchema(many=True)
 
 
 class TagSchema(ma.Schema):
-    class Meta: #definimos una clase meta
-        fields = ('id_tag', 'nombre_tag') #campos que queremos obtener cada vez que interactuemos con este esquema
+    class Meta:
+        attribute = 'tag'
 
-tag_schema = TagSchema() #instancia de un task schema
-tag_schema = TagSchema(many=True) #instancia en caso de querer crear mas de un task schema
+tag_schema = TagSchema()
+tag_schema = TagSchema(many=True)
 
 
 class EncuestadoSchema(ma.Schema):
-    class Meta: #definimos una clase meta
-        fields = ('id_encuestado', 'correo_encuestado') #campos que queremos obtener cada vez que interactuemos con este esquema
+    class Meta:
+        attribute = 'correo_encuestado'
 
-encuestado_schema = EncuestadoSchema() #instancia de un task schema
-encuestados_schema = EncuestadoSchema(many=True) #instancia en caso de querer crear mas de un task schema
-
+encuestado_schema = EncuestadoSchema()
+encuestados_schema = EncuestadoSchema(many=True)
 
 class EncuestaSchema(ma.Schema):
-    class Meta: #definimos una clase meta
-        fields = ('id_encuesta', 'id_editor', 'titulo_encuesta', 'descripcion_encuesta', 'fecha_creacion') #campos que queremos obtener cada vez que interactuemos con este esquema
+    class Meta:
+        fields = ('id_encuesta', 'id_editor', 'titulo_encuesta', 'descripcion_encuesta', 'fecha_creacion')
 
 encuesta_schema = EncuestaSchema()
 encuesta_schema = EncuestaSchema(many=True)
 
 
 class PreguntaSchema(ma.Schema):
-    class Meta: #definimos una clase meta
-        fields = ('id_pregunta', 'id_encuesta', 'enunciado_pregunta') #campos que queremos obtener cada vez que interactuemos con este esquema
+    class Meta:
+        fields = ('id_pregunta', 'id_encuesta', 'enunciado_pregunta')
 
 pregunta_schema = PreguntaSchema()
 pregunta_schema = PreguntaSchema(many=True)
 
 
 class AlternativaSchema(ma.Schema):
-    class Meta: #definimos una clase meta
-        fields = ('id_alternativa', 'id_pregunta', 'enunciado_alternativa', 'contador') #campos que queremos obtener cada vez que interactuemos con este esquema
+    class Meta:
+        fields = ('id_alternativa', 'id_pregunta', 'enunciado_alternativa', 'contador')
 
 alternativa_schema = AlternativaSchema()
 alternativa_schema = AlternativaSchema(many=True)
