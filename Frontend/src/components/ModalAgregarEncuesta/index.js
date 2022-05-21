@@ -6,21 +6,21 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import InputGroup from 'react-bootstrap/InputGroup'
-import CardPregunta from '../../components/CardPregunta'
+import CardPregunta from '../../components/CardPregunta';
 import FormControl from 'react-bootstrap/FormControl'
 
 // id_encuesta, titulo_encuesta, descripcion_encuesta, id_pregunta, enunciado_pregunta, id_alternativa, enunciado_alternativa, contador_alternativa
-
-//1. obtener la información de los componentes de la siguiente forma ModalAgregarEncuesta <-- CardPregunta <-- Alternativa
-//2. cuando tenga la información guardarlo en los useState, los de preguntas deben ser un arreglo y los de respuestas igual.
-//3. 
-
 
 const ModalAgregarEncuesta = () => {
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const [cardList, setCardList] = useState([]);
+  const [id_pregunta, setId_Pregunta] = useState(1);
+
+  const [alternativas, setAlternativas] = useState([]);
 
   // const encuesta = {
   //   titulo_encuesta: titulo_encuesta,
@@ -55,21 +55,31 @@ const ModalAgregarEncuesta = () => {
   //   handleClose(true);
   // }
 
-  const [cardList, setCardList] = useState([]);
-
-  const [count, setCount] = useState(1);
 
   const onAddCardClick = event => {
-    setCount(count+1);
-    console.log(count);
-    setCardList(cardList.concat(<CardPregunta count={count}> </CardPregunta>));
+    setId_Pregunta(id_pregunta+1);
+    console.log(id_pregunta);
+    setCardList(cardList.concat(<CardPregunta id_pregunta={id_pregunta} /*obtenerAlternativaModal={obtenerAlternativaModal}*/ obtenerAlternativas={obtenerAlternativas}/>));
   }
 
   const vaciarCardList = event => {
     setCardList([]);
     setShow(false);
-    setCount(1);
+    setId_Pregunta(1);
   } 
+
+  const obtenerAlternativas = (enunciado_alternativa, id_pregunta) => {
+    console.log("ALTERNATIVA EN MODAL:", enunciado_alternativa);
+    
+    // while(alternativas.length > 0){
+    //     alternativas.pop();
+    // }
+
+    setAlternativas(enunciado_alternativa, id_pregunta);
+  }
+
+  console.log("ARREGLO ALTERNATIVA EN MODAL", alternativas);
+
 
   return (
     <>
@@ -115,7 +125,7 @@ const ModalAgregarEncuesta = () => {
 
             {cardList}
 
-            <Button variant="info" onClick={onAddCardClick}>
+            <Button variant="info" onClick={()=> {onAddCardClick(); obtenerAlternativas();}}>
               Agregar Pregunta
             </Button>
           </Form>

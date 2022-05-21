@@ -1,18 +1,20 @@
-import { Button } from 'bootstrap';
 import React, {useState, FC} from 'react';
 
 import Form from 'react-bootstrap/Form';
-// import Button from 'react-bootstrap/Button';
+import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 interface props {
     countAns:? Number;
-    obtenerAlternativaCard:? (enunciado_alternativa) => void;
+    id_pregunta:? Number;
+    obtenerAlternativas:? (enunciado_alternativa, id_pregunta) => void;
 }
 
-const Alternativa: FC<props> = ({countAns, obtenerAlternativaCard}) => {
+const Alternativa: FC<props> = ({countAns, obtenerAlternativas, id_pregunta}) => {
 
-    const [enunciado_alternativa, setEnunciado_alternativa] = useState({});
+    const [enunciado_alternativa, setEnunciado_alternativa] = useState('');
+
+    obtenerAlternativas(enunciado_alternativa, id_pregunta);
 
     return(
         <>
@@ -21,13 +23,14 @@ const Alternativa: FC<props> = ({countAns, obtenerAlternativaCard}) => {
                 size="sm" 
                 type="text" 
                 placeholder={`Respuesta ${countAns}`}
-                onChange={(e) => setEnunciado_alternativa(e.target.value)}
+                onChange={(e) => {
+                    setEnunciado_alternativa(e.target.value);
+                }}
                 />
-                <Button variant="outline-secondary" id="button-addon2" onClick={obtenerAlternativaCard(enunciado_alternativa)}>
+                {/* <Button variant="outline-secondary" id="button-addon2" onClick={AlternativaLista}>
                     Listo
-                </Button>
+                </Button> */}
             </InputGroup>
-            
         </>
         
         

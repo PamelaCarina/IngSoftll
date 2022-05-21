@@ -40,11 +40,6 @@ const Administrador = () => {
                 <ListaEncuestas/>
                 <BotonAgregarEncuesta/>
             </Container>
-            
-            
-            
-            
-        
         </>
     );
 }

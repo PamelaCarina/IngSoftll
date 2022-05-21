@@ -8,25 +8,37 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 
 interface props{
-    count: number;
+    id_pregunta: number;
+    // obtenerAlternativaModal:? (enunciado_alternativaCard) => void;
+    obtenerAlternativas:? (enunciado_alternativa, id_pregunta) => void;
 }
 
-const CardPregunta: FC<props> = ({count}) => {
+// const alternativas = [];
+
+const CardPregunta: FC<props> = ({id_pregunta, /*obtenerAlternativaModal*/ obtenerAlternativas}) => {
 
     const [ansList, setAnsList] = useState([]);
     const [countAns, setCountAns] = useState(1);
 
-    const [enunciado_alternativaCard, setEnunciado_alternativaCard] = useState({});
-
-    const obtenerAlternativaCard = (enunciado_alternativa) => {
-        setEnunciado_alternativaCard(enunciado_alternativa);
-        console.log("ALTERNATIVA CARD:", enunciado_alternativa);
-    }
-
+    //const [enunciado_alternativaCard, setEnunciado_alternativaCard] = useState({});
+    
     const onAddAnswerClick = event => {
+        
         setCountAns(countAns+1);
-        setAnsList(ansList.concat(<Alternativa countAns={countAns} obtenerAlternativaCard={obtenerAlternativaCard}/>));
+        setAnsList(ansList.concat(<Alternativa countAns={countAns} obtenerAlternativas={obtenerAlternativas} id_pregunta={id_pregunta}/>));
     }
+
+    // const obtenerAlternativas = (enunciado_alternativa, id_pregunta) => {
+    //     console.log("ALTERNATIVA CARD:", enunciado_alternativa);
+        
+    //     // while(alternativas.length > 0){
+    //     //     alternativas.pop();
+    //     // }
+
+    //     alternativas.push(enunciado_alternativa, id_pregunta);
+    // }
+    // console.log("ARREGLO ALTERNATIVA CARD", alternativas);
+    // obtenerAlternativaModal(AlternativasCard);
 
     return(
         <>
@@ -34,20 +46,20 @@ const CardPregunta: FC<props> = ({count}) => {
                 <Card.Header>
                     <InputGroup controlId="FormEncuesta">
                         <FormControl
-                            placeholder={`Pregunta ${count}`}
+                            placeholder={`Pregunta ${id_pregunta}`}
                             aria-label="Título"
                             aria-describedby="basic-addon2"
                         />
-                        <Button variant="outline-secondary" id="button-addon2">
+                        {/* <Button variant="outline-secondary" id="button-addon2">
                             Listo
-                        </Button>
+                        </Button> */}
                     </InputGroup>
                 </Card.Header>
                 <Card.Body>
                 <Form>
-                    <div>
+                    <>
                     {ansList}
-                    </div>
+                    </>
                     <Button variant="success" onClick={onAddAnswerClick}>
                         Añadir respuesta
                     </Button>
