@@ -1,13 +1,25 @@
+import datetime
+
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
+from flask_mail import Mail, Message
 
 ####### APP CONFIG (APP, DB, MAIL) #######
+from sqlalchemy import func
+
 app = Flask(__name__)
+mail = Mail(app)
 cors = CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'correo@gmail.com'
+app.config['MAIL_PASSWORD'] = 'password'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -169,19 +181,45 @@ def showEncuesta(idEncuesta):
 ###EDITOR###
 #@app.route("/login")
 #@app.route("/signIn")
+
+#@app.route("/listadoEncuestados")
+@app.route("/sendCorreos" , methods=['GET']) #envia los correos para una encuesta dada a toda la lista de correos
+def sendCorreos(): #id_encuesta
+    link="placeholder.com/encuesta/123"#+id_encuesta #obtiene link a partir de id
+    users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos - probar con correo como id
+    with mail.connect() as conn:
+        for user in users:
+            msg=Message('subject', sender=("Compañia encuestas",'encuesta@mail.com'),recipients=[user.email])
+            msg.body="mensaje con link"+link
+            mail.send(msg)
+    return "Mensajes enviados."
+
+#@app.route("/editEncuestado")
+#@app.route("/deleteEncuestado")
+#@app.route("/ingresarEncuestado")
+#@app.route("/editEncuesta")
+
+
+@app.route("/deleteEncuesta/<idE>", methods=['DELETE'])
+def deleteEncuesta(idE):
+    pregs = Pregunta.query.filter(Pregunta.id_encuesta == idE)
+    for p in pregs:
+        Alternativa.query.filter(Alternativa.id_pregunta == p.id_pregunta).delete()
+        #alts = Alternativa.query.filter(Alternativa.id_pregunta == p.id_pregunta)
+        #    print(a.id_alternativa)
+        #    print("***********")
+        db.session.delete(p)
+    Encuesta.query.filter(Encuesta.id_encuesta == idE).delete()
+    db.session.commit()
+    return 'lol'
+
+
 @app.route("/listadoEncuestas/<idEditor>", methods=['GET'])
 def listaEncuestas(idEditor):
     encuestasEd = db.session.query(Encuesta).where(Encuesta.id_editor == idEditor)
     result = encuesta_schema.dump(encuestasEd)
     return jsonify(result)
 
-#@app.route("/listadoEncuestados")
-#@app.route("/sendEMails")
-#@app.route("/editEncuesta")
-#@app.route("/deleteEncuesta")
-#@app.route("/editEncuestado")
-#@app.route("/deleteEncuestado")
-#@app.route("/ingresarEncuestado")
 
 @app.route("/saveEncuesta", methods=['POST'])
 def saveEncuesta():
@@ -189,14 +227,14 @@ def saveEncuesta():
         #Extraigo el JSON de la request
         data = request.get_json()
         #Se obtienen los id máximos de las encuestas, preguntas y alternativas
-        id_encuesta = db.session.query(Encuesta).select_from(Encuesta).count()+1
-        max_id_pregunta = db.session.query(Pregunta).select_from(Pregunta).count()+1
-        max_id_alternativa = db.session.query(Alternativa).select_from(Alternativa).count()+1
-        #Se extraen los daots de la encuesta
+        id_encuesta = db.session.query(func.max(Encuesta.id_encuesta)).scalar()+1
+        max_id_pregunta = db.session.query(func.max(Pregunta.id_pregunta)).scalar()+1
+        max_id_alternativa = db.session.query(func.max(Alternativa.id_alternativa)).scalar()+1
+        #Se extraen los datos de la encuesta
         titulo_encuesta = data['titulo_encuesta']
         descripcion_encuesta = data['descripcion_encuesta']
         #Se crea una nueva encuesta
-        fecha_creacion = "11-05-2022"
+        fecha_creacion = datetime.datetime.now().date()
         new_encuesta = Encuesta(id_encuesta, 1, titulo_encuesta, descripcion_encuesta, fecha_creacion)
         #Se extraen los tags de la encuesta
         """
@@ -236,11 +274,11 @@ def saveEncuesta():
         return "ok"
 
 
-@app.route("/getEncuestas", methods=['GET'])
-def getEncuestas():
-    encuestas = Encuesta.query.all()  # consultamos todas las tareas, esto lo guardaremos en una variable llamada all_tasks
-    result = encuesta_schema.dump(encuestas)  # necesitamos usar desde el schema el metodo llamado dump que utilizamos losmetodos que nos ha devuelto la consulta anterior
-    return jsonify(result)
+#@app.route("/getEncuestas", methods=['GET'])
+#def getEncuestas():
+#    encuestas = Encuesta.query.all()  # consultamos todas las tareas, esto lo guardaremos en una variable llamada all_tasks
+#    result = encuesta_schema.dump(encuestas)  # necesitamos usar desde el schema el metodo llamado dump que utilizamos losmetodos que nos ha devuelto la consulta anterior
+#    return jsonify(result)
 
 
 if __name__ == "__main__":
