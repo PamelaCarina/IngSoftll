@@ -115,7 +115,7 @@ class EditorSchema(ma.Schema):
         fields = ('id_editor', 'correo_editor', 'password')
 
 editor_schema = EditorSchema()
-editor_schema = EditorSchema(many=True)
+editor_schema = EditorSchema(many=True, only=("id_editor","correo_editor"))
 
 
 class TagSchema(ma.Schema):
@@ -181,6 +181,13 @@ def showEncuesta(idEncuesta):
 ###EDITOR###
 #@app.route("/login")
 #@app.route("/signIn")
+
+@app.route("/getUser/<idEd>", methods=['GET'])
+def getUser(idEd):
+    editor = db.session.query(Editor).where(Editor.id_editor == idEd)
+    result = editor_schema.dump(editor)
+    return jsonify(result)
+
 
 #@app.route("/listadoEncuestados")
 @app.route("/sendCorreos" , methods=['GET']) #envia los correos para una encuesta dada a toda la lista de correos
