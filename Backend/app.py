@@ -295,6 +295,54 @@ def saveEncuesta():
 #    result = encuesta_schema.dump(encuestas)  # necesitamos usar desde el schema el metodo llamado dump que utilizamos losmetodos que nos ha devuelto la consulta anterior
 #    return jsonify(result)
 
+@app.route("/viewCorreos/",methods=['GET','POST']) #POST es para editar correo
+def viewCorreos():
+    if request.method=='POST': #editar correo
+        correo=request.form('correo_encuestado')
+        encuestado=Encuestado.query.get_or_404(correo)
+        encuestado.correo_encuestado=correo
+        db.session.add(encuestado)
+        db.session.commit()
+    return
+
+@app.post("/<int:id_encuestado>/ingresarCorreo/")
+def ingresarCorreo(correo):
+    encuestado=Encuestado(correo_encuestado=correo)
+    db.session.add(encuestado)
+    db.session.commit()
+    return redirect(url_for('index')) #cambiar link
+
+@app.post("/<int:id_encuestado>/eliminarCorreo/")
+def eliminarCorreo(correo): #¿se refiere a eliminar al usuario?
+    #tal vez deberia usarse correo como id
+    encuestado=Encuestado.query.get_or_404(correo)
+    db.session.delete(encuestado)
+    db.session.commit()
+    return redirect(url_for('index')) #Cambiar link
+
+@app.route("/filtrarCorreo",methods=['GET','POST'])
+def filtrarCorreo(tag):
+    if request.method=='POST':
+        #obtiene lista de correos filtrados
+        correos=db_session.query(Encuestado).join(Tag_encuesta).filter(Tag_encuesta.id_tag==tag)
+        #enviar a front end la lista de correos filtrados
+        return jsonify(correos)
+    return render_template('index.html')
+
+#@app.post("/<int:id_encuesta>/sendCorreos/")
+#def sendCorreos(id_encuesta):
+#   link="surveycado.com/encuesta/ "+id_encuesta
+@app.post("/sendCorreos/") #envia los correos para una encuesta dada a toda la lista de correos
+def sendCorreos():
+    link="surveycado.com/encuesta/"
+    link_html='<a href='+link+'>'+link+'</a>'
+    users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
+    with mail.connect() as conn:
+        for user in users:
+            msg=Message('subject', sender=("Surveycado 🥑",'esalini2017@inf.udec.cl'),recipients=[''.join(user)])
+            msg.body="Link encuesta "+link_html
+            mail.send(msg)
+    return "Mensajes enviados."
 
 if __name__ == "__main__":
     app.run()
