@@ -158,7 +158,6 @@ alternativa_schema = AlternativaSchema()
 alternativa_schema = AlternativaSchema(many=True)
 
 
-
 ####### RUTAS #######
 
 ###ENCUESTADO###
@@ -183,23 +182,7 @@ def getUser(idEd):
     return jsonify(result)
 
 
-#@app.route("/listadoEncuestados")
-@app.route("/sendCorreos" , methods=['GET']) #envia los correos para una encuesta dada a toda la lista de correos
-def sendCorreos(): #id_encuesta
-    link="placeholder.com/encuesta/123"#+id_encuesta #obtiene link a partir de id
-    users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos - probar con correo como id
-    with mail.connect() as conn:
-        for user in users:
-            msg=Message('subject', sender=("Compañia encuestas",'encuesta@mail.com'),recipients=[user.email])
-            msg.body="mensaje con link"+link
-            mail.send(msg)
-    return "Mensajes enviados."
-
-#@app.route("/editEncuestado")
-#@app.route("/deleteEncuestado")
-#@app.route("/ingresarEncuestado")
 #@app.route("/editEncuesta")
-
 
 @app.route("/deleteEncuesta/<idE>", methods=['DELETE'])
 def deleteEncuesta(idE):
@@ -312,12 +295,6 @@ def saveEncuesta():
         db.session.commit()
         return "ok"
 
-
-#@app.route("/getEncuestas", methods=['GET'])
-#def getEncuestas():
-#    encuestas = Encuesta.query.all()  # consultamos todas las tareas, esto lo guardaremos en una variable llamada all_tasks
-#    result = encuesta_schema.dump(encuestas)  # necesitamos usar desde el schema el metodo llamado dump que utilizamos losmetodos que nos ha devuelto la consulta anterior
-#    return jsonify(result)
 
 @app.route("/viewCorreos/",methods=['GET','POST']) #POST es para editar correo
 def viewCorreos():
