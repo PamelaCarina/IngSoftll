@@ -80,7 +80,7 @@ class Alternativa(db.Model): #CLASE ALTERNATIVA
     id_alternativa = db.Column(db.Integer, primary_key=True)
     id_pregunta = db.Column(db.Integer, db.ForeignKey('pregunta.id_pregunta'))
     enunciado_alternativa = db.Column(db.String(200))
-    contador = db.Column(db.String(30))
+    contador = db.Column(db.Integer)
 
     def __init__(self, id_alternativa, id_pregunta, enunciado_alternativa, contador):
         self.id_alternativa = id_alternativa
@@ -161,21 +161,15 @@ alternativa_schema = AlternativaSchema(many=True)
 ####### RUTAS #######
 
 ###ENCUESTADO###
-#@app.route("/saveRespuestas")
-@app.route("/showEncuesta/<idEncuesta>", methods=['GET'])
-def showEncuesta(idEncuesta):
-    if request.method == 'GET':
-        print(idEncuesta)
-        #encuesta = db.session.query(Encuesta).join(Pregunta).where(Pregunta.id_encuesta == 1).all()
-        encuesta = db.session.query(Encuesta).where(Encuesta.id_encuesta == idEncuesta)
-        preguntas = db.session.query(Pregunta).where(Pregunta.id_encuesta == idEncuesta)
-        alternativas = db.session.query(Alternativa).join(Pregunta).where(Alternativa.id_pregunta == Pregunta.id_pregunta and Pregunta.id_encuesta == idEncuesta).all()
-        resultE = encuesta_schema.dump(encuesta)
-        resultP = pregunta_schema.dump(preguntas)
-        resultA = alternativa_schema.dump(alternativas)
-        #print(resultA)
-        return jsonify(resultE, resultP, resultA)
-
+@app.route("/saveRespuestas", methods=['PUT'])
+def saveRespuestas():
+    data = request.get_json()
+    print(data)
+    for a in data['dict']:
+        alt = Alternativa.query.get(a['idAlt'])
+        alt.contador = alt.contador+1
+        db.session.commit()
+    return "Actualizada correctamente"
 
 
 ###EDITOR###
@@ -226,6 +220,20 @@ def listaEncuestas(idEditor):
     encuestasEd = db.session.query(Encuesta).where(Encuesta.id_editor == idEditor)
     result = encuesta_schema.dump(encuestasEd)
     return jsonify(result)
+
+
+@app.route("/showEncuesta/<idEncuesta>", methods=['GET'])
+def showEncuesta(idEncuesta):
+    if request.method == 'GET':
+        #encuesta = db.session.query(Encuesta).join(Pregunta).where(Pregunta.id_encuesta == 1).all()
+        encuesta = db.session.query(Encuesta).where(Encuesta.id_encuesta == idEncuesta)
+        preguntas = db.session.query(Pregunta).where(Pregunta.id_encuesta == idEncuesta)
+        alternativas = db.session.query(Alternativa).join(Pregunta).where(Alternativa.id_pregunta == Pregunta.id_pregunta and Pregunta.id_encuesta == idEncuesta).all()
+        resultE = encuesta_schema.dump(encuesta)
+        resultP = pregunta_schema.dump(preguntas)
+        resultA = alternativa_schema.dump(alternativas)
+        #print(resultA)
+        return jsonify(resultE, resultP, resultA)
 
 
 @app.route("/saveEncuesta", methods=['POST'])
