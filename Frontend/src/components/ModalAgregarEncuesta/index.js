@@ -6,79 +6,27 @@ import axios from 'axios';
 // id_encuesta, titulo_encuesta, descripcion_encuesta, id_pregunta, enunciado_pregunta, id_alternativa, enunciado_alternativa, contador_alternativa
 
 const ModalAgregarEncuesta = () => {
-
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
   const [cardList, setCardList] = useState([]);
   const [id_pregunta, setId_Pregunta] = useState(1);
+  const [inputs, setInputs] = useState({});
 
-  const [alternativas, setAlternativas] = useState([]);
-
-  // const encuesta = {
-  //   titulo_encuesta: titulo_encuesta,
-  //   descripcion_encuesta: descripcion_encuesta,
-  //   pregunta:[{
-  //     enunciado_pregunta: enunciado_pregunta,
-  //     alternativa:[
-  //       {
-  //       enunciado_alternativa: enunciado_alternativa,
-  //       },
-  //       {
-  //         otra alternativa
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     otra pregunta
-  //   }
-  //   ]
-  // }
-
-  // const encuesta = {
-  //   preguntas: preguntas
-  // }
-
-
-  // const handleSubmit = (e) => {
-  //   axios.post('http://localhost:5000/saveEncuesta', {encuesta} )
-  //     .then(res => {
-  //       console.log(res);
-  //     })
-  //   handleClose(true);
-  // }
-
-
-  const onAddCardClick = event => {
+  const onAddCardClick = () => {
     setId_Pregunta(id_pregunta+1);
-    //console.log(id_pregunta);
-    setCardList(cardList.concat(<CardPregunta id_pregunta={id_pregunta} handleChange={handleChange} obtenerAlternativas={obtenerAlternativas}/>));
+    setCardList(cardList.concat(<CardPregunta id_pregunta={id_pregunta} handleChange={handleChange}/>));
   }
 
-  const vaciarCardList = event => {
+  const vaciarCardList = () => {
     setCardList([]);
     setShow(false);
     setId_Pregunta(1);
   }
 
-  const obtenerAlternativas = (enunciado_alternativa, id_pregunta) => {
-    console.log("ALTERNATIVA EN MODAL:", enunciado_alternativa);
-
-    // while(alternativas.length > 0){
-    //     alternativas.pop();
-    // }
-
-    setAlternativas(enunciado_alternativa, id_pregunta);
-  }
-
-  //console.log("ARREGLO ALTERNATIVA EN MODAL", alternativas);
-  const [inputs, setInputs] = useState({});
-
   const handleChange = (event) =>{
     const name = event.target.name;
     const value = event.target.value;
-    //console.log(value)
     setInputs(values => ({...values, [name]: value}))
   }
 
@@ -126,6 +74,7 @@ const ModalAgregarEncuesta = () => {
     dict.push({
       preguntas: dictP
     });
+    //console.log(dict)
     axios.post('http://localhost:5000/saveEncuesta', {dict} )
        .then(res => {
          console.log(res);
@@ -163,7 +112,7 @@ const ModalAgregarEncuesta = () => {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={vaciarCardList}>Cancelar</Button>
-              <Button variant="primary" type="submit">Guardar Encuesta</Button>
+              <Button variant="primary" type="submit" onClick={vaciarCardList}>Guardar Encuesta</Button>
             </Modal.Footer>
           </Form>
         </Modal>

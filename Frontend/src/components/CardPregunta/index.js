@@ -8,13 +8,11 @@ interface props {
 
 const CardPregunta: FC<props> = ({id_pregunta, handleChange}) => {
     const [ansList, setAnsList] = useState([]);
-
     const [countAns, setCountAns] = useState(1);
 
-    const onAddAnswerClick = event => {
+    const onAddAnswerClick = () => {
         setCountAns(countAns+1);
         setAnsList(ansList.concat(<Alternativa countAns={countAns} id_preg={id_pregunta} handleChange={handleChange}> </Alternativa>));
-        console.log(id_pregunta)
     }
 
     return(

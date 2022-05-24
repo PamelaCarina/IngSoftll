@@ -306,14 +306,14 @@ def viewCorreos():
         db.session.commit()
     return
 
-@app.post("/<int:id_encuestado>/ingresarCorreo/")
+@app.route("/<int:id_encuestado>/ingresarCorreo/",methods=['POST'])
 def ingresarCorreo(correo):
     encuestado=Encuestado(correo_encuestado=correo)
     db.session.add(encuestado)
     db.session.commit()
     return redirect(url_for('index')) #cambiar link
 
-@app.post("/<int:id_encuestado>/eliminarCorreo/")
+@app.route("/<int:id_encuestado>/eliminarCorreo/",methods=['POST'])
 def eliminarCorreo(correo): #¿se refiere a eliminar al usuario?
     #tal vez deberia usarse correo como id
     encuestado=Encuestado.query.get_or_404(correo)
@@ -333,7 +333,7 @@ def filtrarCorreo(tag):
 #@app.post("/<int:id_encuesta>/sendCorreos/")
 #def sendCorreos(id_encuesta):
 #   link="surveycado.com/encuesta/ "+id_encuesta
-@app.post("/sendCorreos/") #envia los correos para una encuesta dada a toda la lista de correos
+@app.route("/sendCorreos/",methods=['POST']) #envia los correos para una encuesta dada a toda la lista de correos
 def sendCorreos():
     link="surveycado.com/encuesta/"
     link_html='<a href='+link+'>'+link+'</a>'
