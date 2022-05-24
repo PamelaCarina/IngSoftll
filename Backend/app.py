@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
@@ -164,7 +165,6 @@ alternativa_schema = AlternativaSchema(many=True)
 @app.route("/saveRespuestas", methods=['PUT'])
 def saveRespuestas():
     data = request.get_json()
-    print(data)
     for a in data['dict']:
         alt = Alternativa.query.get(a['idAlt'])
         alt.contador = alt.contador+1
@@ -240,49 +240,73 @@ def showEncuesta(idEncuesta):
 def saveEncuesta():
     if request.method == 'POST':
         #Extraigo el JSON de la request
-        data = request.get_json()
+        abc = request.get_json()
+        data = json.dumps(abc['dict'])
+        data =json.loads(data)
         #Se obtienen los id máximos de las encuestas, preguntas y alternativas
-        id_encuesta = db.session.query(func.max(Encuesta.id_encuesta)).scalar()+1
-        max_id_pregunta = db.session.query(func.max(Pregunta.id_pregunta)).scalar()+1
-        max_id_alternativa = db.session.query(func.max(Alternativa.id_alternativa)).scalar()+1
+        if db.session.query(func.max(Encuesta.id_encuesta)).scalar() == None:
+            id_encuesta = 1
+        else:
+            id_encuesta = db.session.query(func.max(Encuesta.id_encuesta)).scalar()+1;
+
+        if db.session.query(func.max(Pregunta.id_pregunta)).scalar() == None :
+            max_id_pregunta = 1
+        else:
+            max_id_pregunta = db.session.query(func.max(Pregunta.id_pregunta)).scalar()+1
+
+        if db.session.query(func.max(Alternativa.id_alternativa)).scalar() == None:
+            max_id_alternativa = 1
+        else:
+            max_id_alternativa = db.session.query(func.max(Alternativa.id_alternativa)).scalar()+1
+
         #Se extraen los datos de la encuesta
-        titulo_encuesta = data['titulo_encuesta']
-        descripcion_encuesta = data['descripcion_encuesta']
-        #Se crea una nueva encuesta
+        for element in data:
+            for att, value in element.items():
+                if att == 'titulo_encuesta':
+                    titulo_encuesta = value
+                if att == 'descripcion_encuesta':
+                    descripcion_encuesta = value
+                if att == 'preguntas':
+                    preguntas = value
+
+        # Se crea una nueva encuesta
         fecha_creacion = datetime.datetime.now().date()
         new_encuesta = Encuesta(id_encuesta, 1, titulo_encuesta, descripcion_encuesta, fecha_creacion)
-        #Se extraen los tags de la encuesta
         """
-        se necesita:
-            recibir todos los tags
-            verificar si el tag existe
-            almacenar los tags en:
-                TagEncuesta
-                Tag
+        # Se extraen los tags de la encuesta
+        se necesita: 
+        recibir todos lostags 
+        verificar si el tag existe
+        almacenar los tags en:
+        TagEncuesta, Tag
         for t in data['tag_encuesta']:
             new_tag = Tag_encuesta(t['id_tag'], id_encuesta)
             db.session.add(new_tag)
         tag_encuesta = data['tag_encuesta']
         """
-        #Se añade el objeto encuesta a la BD
+        # Se añade el objeto encuesta a la BD
         db.session.add(new_encuesta)
         #Se itera por la preguntas
-        for p in data['preguntas']:
-            #Se extrane los datos de las preguntas
-            #id_pregunta = p['id_pregunta']
-            enunciado_pregunta = p['enunciado_pregunta']
-            #Se crea la nueva pregunta y se almacena
-            new_pregunta = Pregunta(max_id_pregunta, id_encuesta, enunciado_pregunta)
-            db.session.add(new_pregunta)
-            #Se itera por las alternativas de una pregunta
-            for a in p['alternativas']:
-                #Se extraen los datos de las alternativas
-                #id_alternativa = a['id_alternativa']
-                enunciado_alternativa = a['enunciado_alternativa']
-                #Se crea la nueva alternativa y se almacena
-                new_alternativa = Alternativa(max_id_alternativa, max_id_pregunta, enunciado_alternativa, 0)
-                db.session.add(new_alternativa)
-                max_id_alternativa += 1
+        for p in preguntas:
+            # Se extraen los datos de las preguntas
+            for att, value in p.items():
+                if att == 'enunciado_pregunta':
+                    enunciado_pregunta = value
+                    # Se crea la nueva pregunta y se almacena
+                    new_pregunta = Pregunta(max_id_pregunta, id_encuesta, enunciado_pregunta)
+                    db.session.add(new_pregunta)
+                if att == 'alternativas':
+                    alternativas = value
+                    # Se itera por las alternativas de una pregunta
+                    for a in alternativas:
+                        # Se extraen los datos de las alternativas
+                        for att, value in a.items():
+                            if att == 'enunciado_alternativa':
+                                enunciado_alternativa = value
+                                # Se crea la nueva alternativa y se almacena
+                                new_alternativa = Alternativa(max_id_alternativa, max_id_pregunta,enunciado_alternativa, 0)
+                                db.session.add(new_alternativa)
+                                max_id_alternativa += 1
             max_id_pregunta += 1
         #Se guardan los cambios realizados en la BD
         db.session.commit()

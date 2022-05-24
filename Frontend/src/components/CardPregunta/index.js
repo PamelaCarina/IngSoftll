@@ -1,49 +1,34 @@
 import React, {useState, FC} from 'react'
-
-import Form from 'react-bootstrap/Form';
-import Card from 'react-bootstrap/Card';
+import {Card, Button, InputGroup, Form} from 'react-bootstrap'
 import Alternativa from '../../components/Alternativa';
-import Button from 'react-bootstrap/esm/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
 
 interface props {
-    count: Number;
+    id_pregunta: Number;
 }
 
-const CardPregunta: FC<props> = ({count}) => {
+const CardPregunta: FC<props> = ({id_pregunta, handleChange}) => {
     const [ansList, setAnsList] = useState([]);
 
     const [countAns, setCountAns] = useState(1);
 
     const onAddAnswerClick = event => {
         setCountAns(countAns+1);
-        setAnsList(ansList.concat(<Alternativa countAns={countAns}> </Alternativa>));
+        setAnsList(ansList.concat(<Alternativa countAns={countAns} id_preg={id_pregunta} handleChange={handleChange}> </Alternativa>));
+        console.log(id_pregunta)
     }
+
     return(
         <>
             <Card>
                 <Card.Header>
-                    <InputGroup controlId="FormEncuesta">
-                        <FormControl
-                            placeholder={`Pregunta ${count}`}
-                            aria-label="Título"
-                            aria-describedby="basic-addon2"
-                        />
-                        <Button variant="outline-secondary" id="button-addon2">
-                            Listo
-                        </Button>
+                    <InputGroup >
+                        <Form.Control name={`pregunta ${id_pregunta}`} placeholder={`Pregunta ${id_pregunta}`} aria-label="Título" aria-describedby="basic-addon2" onChange={handleChange}/>
+                        <Button variant="outline-secondary" id="button-addon2">Listo</Button>
                     </InputGroup>
                 </Card.Header>
                 <Card.Body>
-                <Form>
-                    <div>
-                    {ansList}
-                    </div>
-                    <Button variant="success" onClick={onAddAnswerClick}>
-                        Añadir respuesta
-                    </Button>
-                </Form>
+                    <div>{ansList}</div>
+                    <Button variant="success" onClick={onAddAnswerClick}>Añadir respuesta</Button>
                 </Card.Body>
             </Card>
         </>

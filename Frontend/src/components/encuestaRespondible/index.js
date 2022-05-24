@@ -44,7 +44,6 @@ const EncuestaRespondible = () => {
         }
         if(existen!==pregMap.size){
             faltantes=true;
-            console.log("hola")
         }
         if(faltantes){
             alert("Faltan preguntas por contestar")

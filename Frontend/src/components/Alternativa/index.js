@@ -1,29 +1,28 @@
-import React, {useState, FC} from 'react'
-
-import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
-import InputGroup from 'react-bootstrap/InputGroup'
+import React, {useState, FC} from 'react';
+import {InputGroup, Form} from 'react-bootstrap';
 
 interface props {
-    countAns: Number;
+    countAns:? Number;
+    id_pregunta:? Number;
+    obtenerAlternativas:? (enunciado_alternativa, id_pregunta) => void;
 }
 
-const Alternativa: FC<props> = ({countAns}) => {
+const Alternativa: FC<props> = ({countAns, obtenerAlternativas, handleChange, id_pregunta, id_preg}) => {
+
+    const [enunciado_alternativa, setEnunciado_alternativa] = useState('');
+
+    const sendAlt = (event) =>{
+        obtenerAlternativas(enunciado_alternativa, id_pregunta);
+    }
+
     return(
         <>
             <InputGroup>
-                <Form.Control size="sm" type="text" placeholder={`Respuesta ${countAns}`}>
-
-                </Form.Control>
-                <Button variant="outline-secondary" id="button-addon2">
-                    Listo
-                </Button>
+                <Form.Control name={`alternativa ${countAns}_${id_preg}`} size="sm" type="text" placeholder={`Alternativa ${countAns}`}
+                              onChange={handleChange}
+                />
             </InputGroup>
-            
         </>
-        
-        
     )
 }
-
 export default Alternativa;
