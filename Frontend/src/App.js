@@ -1,16 +1,19 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Administrador from './containers/Administrador';
-import Login from './containers/Login';
+import Encuesta from './containers/Encuesta';
+import Home from './containers/Home';
+
 
 export default function App() {
   return (
-    <HashRouter>
-      <Routes>
-        <Route exact path="/" element={<Administrador/>} />
-        <Route exact path="/login" element={<Login/>} />
-      </Routes>
-    </HashRouter>
+      <Router>
+        <Routes>
+            <Route exact path="/" element={<Home/>}></Route>
+            <Route path="/admin/:idEd" element={<Administrador/>}></Route>
+            <Route path="/encuesta/:id" element={<Encuesta/>}></Route>
+        </Routes>
+      </Router>
   );
 }
