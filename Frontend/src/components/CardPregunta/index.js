@@ -1,12 +1,8 @@
 import React, {useState, FC} from 'react'
-
-import Form from 'react-bootstrap/Form';
-import Card from 'react-bootstrap/Card';
+import {Card, Button, InputGroup, Form} from 'react-bootstrap'
 import Alternativa from '../../components/Alternativa';
-import Button from 'react-bootstrap/esm/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
 
+<<<<<<< HEAD
 interface props{
     id_pregunta: number;
     // obtenerAlternativaModal:? (enunciado_alternativaCard) => void;
@@ -40,10 +36,26 @@ const CardPregunta: FC<props> = ({id_pregunta, /*obtenerAlternativaModal*/ obten
     // console.log("ARREGLO ALTERNATIVA CARD", alternativas);
     // obtenerAlternativaModal(AlternativasCard);
 
+=======
+interface props {
+    id_pregunta: Number;
+}
+
+const CardPregunta: FC<props> = ({id_pregunta, handleChange}) => {
+    const [ansList, setAnsList] = useState([]);
+    const [countAns, setCountAns] = useState(1);
+
+    const onAddAnswerClick = () => {
+        setCountAns(countAns+1);
+        setAnsList(ansList.concat(<Alternativa countAns={countAns} id_preg={id_pregunta} handleChange={handleChange}> </Alternativa>));
+    }
+
+>>>>>>> 2739b0ec09c29678a523b20f3cc8af53052764c2
     return(
         <>
             <Card>
                 <Card.Header>
+<<<<<<< HEAD
                     <InputGroup controlId="FormEncuesta">
                         <FormControl
                             placeholder={`Pregunta ${id_pregunta}`}
@@ -64,6 +76,16 @@ const CardPregunta: FC<props> = ({id_pregunta, /*obtenerAlternativaModal*/ obten
                         Añadir respuesta
                     </Button>
                 </Form>
+=======
+                    <InputGroup >
+                        <Form.Control name={`pregunta ${id_pregunta}`} placeholder={`Pregunta ${id_pregunta}`} aria-label="Título" aria-describedby="basic-addon2" onChange={handleChange}/>
+                        <Button variant="outline-secondary" id="button-addon2">Listo</Button>
+                    </InputGroup>
+                </Card.Header>
+                <Card.Body>
+                    <div>{ansList}</div>
+                    <Button variant="success" onClick={onAddAnswerClick}>Añadir respuesta</Button>
+>>>>>>> 2739b0ec09c29678a523b20f3cc8af53052764c2
                 </Card.Body>
             </Card>
         </>
