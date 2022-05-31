@@ -1,17 +1,19 @@
 import React from 'react'
-import {Container, Nav, Navbar} from 'react-bootstrap'
+import Container from 'react-bootstrap/Container';
+//import FormLogin from '../../components/FormLogin';
+import MyNavbar from "../../components/Navbar";
+import MyFooter from "../../components/Footer";
+
 const Home = () =>{
     return (
         <>
-             <Navbar bg="dark" variant="dark">
-                <Container>
-                <Navbar.Brand href="">SurveyCado</Navbar.Brand>
-                <Nav className="me-auto">
-                    <Nav.Link href="/login" >Log in</Nav.Link>
-                </Nav>
-                </Container>
-            </Navbar>
+            <MyNavbar/>
             <h1>Bienvenido a Surveycado</h1>
+            <Container style={{marginTop: "150px", marginBottom:"350px"}}>
+            <h1>hola soy un login</h1>
+            {/* <FormLogin/> */}
+            </Container>
+            {/* <MyFooter/> */}
         </>
     );
 }

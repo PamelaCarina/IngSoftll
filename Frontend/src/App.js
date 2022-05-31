@@ -11,7 +11,6 @@ export default function App() {
       <Router>
         <Routes>
             <Route exact path="/" element={<Home/>}></Route>
-            <Route exact path="/login"></Route>
             <Route path="/admin/:idEd" element={<Administrador/>}></Route>
             <Route path="/encuesta/:id" element={<Encuesta/>}></Route>
         </Routes>
