@@ -204,6 +204,37 @@ def saveRespuestas():
 #@app.route("/login")
 #@app.route("/signIn")
 
+@app.route("/login",methods=['GET','POST'])
+def login(correo,password):
+    if request.method=='POST':
+        '''exists=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
+        if exists is False:
+            return 'Correo o contraseña incorrectos'
+        editor=Editor.query.get_or_404(correo) #cambiar id a correo
+        if(editor.password!=password):
+            return 'Correo o contraseña incorrectos'
+        return jsonify([editor.correo_editor, editor.nombre, editor.password])'''
+        editor=Editor.query.get(correo)
+        if editor is not None and editor.password==password:
+            return jsonify([editor.correo_editor, editor.nombre, editor.password])
+        return 'Correo o contraseña incorrectos'
+
+@app.route("/signup",methods=['GET','POST']) #cambiar? para sprint 3
+def signup(correo,nombre,password):
+    if request.method=='POST':
+        exists_c=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
+        if exists_c is True:
+            return 'Correo ya registrado'
+        exists_u=db.session.query(db.exists().where(Editor.nombre==nombre)).scalar()
+        if exists_u is True:
+            return 'Nombre ya registrado'
+        editor=Editor(correo_editor=correo,
+        nombre=nombre,
+        password=password)
+        db.session.add(ce)
+        db.session.commit()
+        return 'Registrado exitosamente'
+
 @app.route("/getUser/<idEd>", methods=['GET'])
 def getUser(idEd):
     editor = db.session.query(Editor).where(Editor.id_editor == idEd)
