@@ -1,14 +1,19 @@
 import React, {useEffect, useState} from "react";
+import swal from "sweetalert";
+import validator from "validator/es";
 import axios from "axios";
-import {Container, Button, Card, ListGroup, Row, ListGroupItem} from "react-bootstrap";
+import {Container, Button, Card, ListGroup, Row, ListGroupItem, CardGroup} from "react-bootstrap";
 import {useNavigate, useParams} from 'react-router-dom'
+
+
 
 const EncuestaRespondible = () => {
     const [encuesta, setEncuesta] = useState([]);
+    const [correo, setCorreo] = useState('');
     const [preguntas, setPreguntas] = useState([]);
     const [alternativas, setAlternativas] = useState([]);
     const [act, setAct] = useState(new Map());
-    const id= useParams();
+    const id = useParams();
     const urlS = `http://localhost:5000/showEncuesta/${id.id}`;
     const urlA = `http://localhost:5000/saveRespuestas`;
 
@@ -45,15 +50,29 @@ const EncuestaRespondible = () => {
         if(existen!==pregMap.size){
             faltantes=true;
         }
-        if(faltantes){
-            alert("Faltan preguntas por contestar")
+        if(!validator.isEmail(correo) || correo === ''){
+            swal("Error","Ingrese una dirección de correo electrónico válida", "error")
+        }else if(faltantes){
+            swal( "Error", "Faltan preguntas por contestar", "error")
         }else{
-            const res = await axios.put(`${urlA}`,{dict})
-            alert("Felicitaciones has respondido la encuesta ctm")
-            redirectHome()
+            dict.push({
+                    idEnc: encuesta[0]['id_encuesta']
+                },
+                {
+                    corrEnc: correo
+                })
+            const res = await axios.put(`${urlA}`,{dict}).
+            then( response =>{
+                swal("Correcto", response.data, "success")
+                redirectHome()
+            }).catch((err) => swal("Error", err.response.data, "error") )
         }
     }
 
+    const handleCorreo = (event) => {
+        setCorreo(event.target.value)
+        console.log(event.target.value)
+    }
 
     const arr = encuesta.map(encuesta => {
         const titulo = encuesta.titulo_encuesta
@@ -109,7 +128,17 @@ const EncuestaRespondible = () => {
                     <Card.Title>{titulo}</Card.Title>
                     <Card.Text>{descripcion}</Card.Text>
                 </Card.Header>
-                <Card.Body>{preguntiwis}</Card.Body>
+                <Card.Body>
+                    <Card>
+                        <Card.Header>
+                            <Card.Title>Ingrese su correo electrónico</Card.Title>
+                        </Card.Header>
+                        <ListGroup>
+                            <input type="text" placeholder="correo@cliente.com" onChange={handleCorreo}/>
+                        </ListGroup>
+                    </Card>
+                    {preguntiwis}
+                </Card.Body>
             </Card>
         );
     })

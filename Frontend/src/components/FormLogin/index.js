@@ -1,125 +1,52 @@
-import React, { useState, useRef } from 'react';
-import { withRouter } from "react-router-dom";
+import React, { useState } from "react";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import { Container, Col } from "react-bootstrap";
+//import "./Login.css";
 
-import Form from "react-validation/build/form";
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-import AuthService from "../../services/auth.services";
+  function validateForm() {
+    return email.length > 0 && password.length > 0;
+  }
 
-import { isEmail } from "validator";
+  function handleSubmit(event) {
+    event.preventDefault();
+  }
 
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
-
-import './index.css';
-const required = (value) => {
-    if (!value) {
-      return (
-        <div className="alert alert-danger" role="alert">
-          ¡Recuerda completar todos los campos!
-        </div>
-      );
-    }
-  };
   
-const validemail = (value) => {
-    if (!isEmail(value)) {
-        return (
-        <div className="alert alert-danger" role="alert">
-            Correo inválido
-        </div>
-        );
-    }
-};
 
-const MyFormLogin = ({history}) => {
-    const form = useRef();
-    const checkBtn = useRef();
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        setMessage("");
-        setLoading(true);
-
-        form.current.validateAll();
-
-        if (checkBtn.current.context._errors.length === 0) {
-          AuthService.login(email, password).then(
-            () => {
-            history.push('/menu');
-            },
-            (error) => {
-            const resMessage = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
-
-            setLoading(false);
-            setMessage(resMessage);
-            }
-        );
-        } else {
-        setLoading(false);
-        }
-    }
-
-    const mystyle = {
-      position: 'relative',
-      top: "10px",
-      alignItems: 'center',
-      justifyContent: 'center'
-    }
-
-    return(
-      <>
-        <Container style={{marginTop: "150px"}}>
+  return (
+    <div className="Login">
         <Col md={{ span: 3, offset: 4}} >
-
           <h3>Iniciar Sesión</h3>
-          <Form onSubmit={handleSubmit} ref={form}>
-                <label htmlFor="email">Correo Electrónico</label>
-                <Input 
-                  type="email" 
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  validations={[required, validemail]}
-                />
-                <label htmlFor="password">Contraseña</label>  
-                <Input 
-                  type="password" 
-                  placeholder="Contraseña"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  validations={[required]}
-                  />
-                
-                  <Button variant="danger" block type="submit" style={mystyle} disabled={loading}>
-                      {loading && (
-                        <span className="spinner-border spinner-border-sm"></span>
-                      )}
-                      <span>Login</span>
-                  </Button>
-              
-              {message && (
-                <div className="form-group">
-                  <div className="alert alert-danger" role="alert">
-                    {message}
-                  </div>
-                </div>
-              )}
-
-              <CheckButton style={{ display: "none" }} ref={checkBtn} />
+          <Form onSubmit={handleSubmit}>
+            <Form.Group size="lg" controlId="email">
+              <Form.Label>Correo Electrónico</Form.Label>
+              <Form.Control
+                autoFocus
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group size="lg" controlId="password">
+              <Form.Label>Contraseña</Form.Label>
+              <Form.Control
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form.Group>
+            <Container style={{marginTop: "5px"}}>
+              <Button variant="success" block="true" size="lg" type="submit" disabled={!validateForm()}>
+                Ingresar
+              </Button>
+            </Container>
           </Form>
         </Col>
-        </Container>
-      </>
-    )
+    </div>
+  );
 }
-
-export default withRouter(MyFormLogin);

@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
@@ -164,16 +164,76 @@ alternativa_schema = AlternativaSchema(many=True)
 @app.route("/saveRespuestas", methods=['PUT'])
 def saveRespuestas():
     data = request.get_json()
-    for a in data['dict']:
-        alt = Alternativa.query.get(a['idAlt'])
-        alt.contador = alt.contador+1
-        db.session.commit()
-    return "Actualizada correctamente"
+    for datos in data['dict']:
+        for [key,value] in datos.items():
+            if(key == 'idEnc'):
+                id = value
+            elif(key == 'corrEnc') :
+                correo = value
+
+    exists = db.session.query(db.exists().where(Encuestado.correo_encuestado == correo)).scalar()
+    encuesta = db.session.query(Encuesta).filter(Encuesta.id_encuesta == id).first()
+    if exists is False:  # si es un correo nuevo, se añade
+        encuestado = Encuestado(correo_encuestado=correo)
+        encuestado.encuestas.append(encuesta, fecha_contestacion=datetime.datetime.now().date())
+        db.session.add(encuestado)
+    else:
+        encuestado = db.session.query(Encuestado).filter(Encuestado.correo_encuestado == correo).first()
+        contestada = False
+        for enc in encuestado.encuestas:
+            if(enc.id_encuesta == id):
+                contestada = True
+
+        if contestada is True:
+            return Response("Ya ha contestado esta encuesta", status=400)
+        else:
+            encuestado.encuestas.append(encuesta)
+
+    #actualiza los contadores de alternativas
+    for alts in data['dict']:
+        for [key,value] in alts.items():
+            if(key == 'idAlt'):
+                alt = Alternativa.query.get(value)
+                alt.contador = alt.contador+1
+
+    db.session.commit()
+    return Response("Contestada correctamente", status=200)
 
 
 ###EDITOR###
 #@app.route("/login")
 #@app.route("/signIn")
+
+@app.route("/login",methods=['GET','POST'])
+def login(correo,password):
+    if request.method=='POST':
+        '''exists=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
+        if exists is False:
+            return 'Correo o contraseña incorrectos'
+        editor=Editor.query.get_or_404(correo) #cambiar id a correo
+        if(editor.password!=password):
+            return 'Correo o contraseña incorrectos'
+        return jsonify([editor.correo_editor, editor.nombre, editor.password])'''
+        editor=Editor.query.get(correo)
+        if editor is not None and editor.password==password:
+            return jsonify([editor.correo_editor, editor.nombre, editor.password])
+        return 'Correo o contraseña incorrectos'
+
+@app.route("/signup",methods=['GET','POST']) #cambiar? para sprint 3
+def signup(correo,nombre,password):
+    if request.method=='POST':
+        exists_c=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
+        if exists_c is True:
+            return 'Correo ya registrado'
+        exists_u=db.session.query(db.exists().where(Editor.nombre==nombre)).scalar()
+        if exists_u is True:
+            return 'Nombre ya registrado'
+        editor=Editor(correo_editor=correo,
+        nombre=nombre,
+        password=password)
+        db.session.add(ce)
+        db.session.commit()
+        return 'Registrado exitosamente'
 
 @app.route("/getUser/<idEd>", methods=['GET'])
 def getUser(idEd):
@@ -208,14 +268,12 @@ def listaEncuestas(idEditor):
 @app.route("/showEncuesta/<idEncuesta>", methods=['GET'])
 def showEncuesta(idEncuesta):
     if request.method == 'GET':
-        #encuesta = db.session.query(Encuesta).join(Pregunta).where(Pregunta.id_encuesta == 1).all()
         encuesta = db.session.query(Encuesta).where(Encuesta.id_encuesta == idEncuesta)
         preguntas = db.session.query(Pregunta).where(Pregunta.id_encuesta == idEncuesta)
         alternativas = db.session.query(Alternativa).join(Pregunta).where(Alternativa.id_pregunta == Pregunta.id_pregunta and Pregunta.id_encuesta == idEncuesta).all()
         resultE = encuesta_schema.dump(encuesta)
         resultP = pregunta_schema.dump(preguntas)
         resultA = alternativa_schema.dump(alternativas)
-        #print(resultA)
         return jsonify(resultE, resultP, resultA)
 
 

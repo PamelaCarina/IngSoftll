@@ -1,34 +1,45 @@
 import React, {useEffect, useState} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Container, Button, Navbar} from "react-bootstrap";
+import {Container, Button, Navbar, Card} from "react-bootstrap";
 import EncuestaRespondible from '../../components/encuestaRespondible'
 
 const Encuesta = () => {
     const {id} = useParams();
     const [encuestiwi, setEncuestiwi] = useState('')
     const [show, setShow] = useState(true)
-    const showComponent = () => {
-        setEncuestiwi(<EncuestaRespondible id={id}/>)
-        setShow(false)
-    }
+
     let nav = useNavigate();
     const redirectHome = () =>{
         nav(`/`);
     }
+    const showComponent= () =>{
+        setShow(false)
+    }
+    useEffect(() =>{
+        setEncuestiwi(<EncuestaRespondible id={id}/>)
+    })
+
     return (
         <>
             <Navbar bg="dark" variant="dark">
                 <Container>
-                <Navbar.Brand href="">SurveyCado</Navbar.Brand>
+                    <Navbar.Brand href="">SurveyCado</Navbar.Brand>
                 </Container>
             </Navbar>
             <Container className="justify-content-md-center" style={{marginTop: "50px", marginBottom:"50px"}}>
-                {encuestiwi}
+                {!(show) && encuestiwi}
                 {
-                    show?<Button onClick={showComponent}>Sos Valiente</Button>:null
-                }
-                {
-                    show?<Button variant='danger' onClick={redirectHome}>Sos Valientent</Button>:null
+                    (show) && (<Card>
+                        <Card.Header>
+                            <Card.Title>
+                                ¿Desea contestar esta encuesta?
+                            </Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <Button onClick={showComponent}>Acepto</Button>
+                            <Button variant='danger' onClick={redirectHome}>Rechazo</Button>
+                        </Card.Body>
+                    </Card>)
                 }
             </Container>
         </>
