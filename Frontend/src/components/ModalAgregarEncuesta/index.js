@@ -84,7 +84,7 @@ const ModalAgregarEncuesta = () => {
   }
   return (
       <>
-        <Button variant="primary" size="lg" onClick={handleShow}>
+        <Button variant="primary" size="lg" onClick={handleShow} className="mb-3">
           Agregar Nueva Encuesta
         </Button>
 
@@ -97,13 +97,11 @@ const ModalAgregarEncuesta = () => {
               <InputGroup className="mb-3">
                 <Form.Control name="titulo_encuesta" placeholder="Título" aria-label="Título"
                               aria-describedby="basic-addon2" size="lg" type="text" autoFocus onChange={handleChange}/>
-                <Button variant="outline-secondary" id="button-addon2">Listo</Button>
               </InputGroup>
               <InputGroup className="mb-3">
                 <Form.Control name="descripcion_encuesta" placeholder="Descripción" aria-label="Descripción"
                               aria-describedby="basic-addon2" as="textarea" rows={3} type="text" autoFocus
                               onChange={handleChange}/>
-                <Button variant="outline-secondary" id="button-addon2">Listo</Button>
               </InputGroup>
               {cardList}
               <Button variant="info" onClick={() => {

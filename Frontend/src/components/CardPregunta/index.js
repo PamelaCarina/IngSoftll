@@ -17,11 +17,10 @@ const CardPregunta: FC<props> = ({id_pregunta, handleChange}) => {
 
     return(
         <>
-            <Card>
+            <Card className="mb-3">
                 <Card.Header>
                     <InputGroup >
                         <Form.Control name={`pregunta ${id_pregunta}`} placeholder={`Pregunta ${id_pregunta}`} aria-label="Título" aria-describedby="basic-addon2" onChange={handleChange}/>
-                        <Button variant="outline-secondary" id="button-addon2">Listo</Button>
                     </InputGroup>
                 </Card.Header>
                 <Card.Body>
