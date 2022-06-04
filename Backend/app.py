@@ -393,13 +393,12 @@ def filtrarCorreo(tag):
 #   link="surveycado.com/encuesta/ "+id_encuesta
 @app.route("/sendCorreos/",methods=['POST']) #envia los correos para una encuesta dada a toda la lista de correos
 def sendCorreos():
-    link="surveycado.com/encuesta/"
-    link_html='<a href='+link+'>'+link+'</a>'
+    surveylink="http://surveycado.com/encuesta/"
     users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
         for user in users:
             msg=Message('subject', sender=("Surveycado 🥑",'esalini2017@inf.udec.cl'),recipients=[''.join(user)])
-            msg.body="Link encuesta "+link_html
+            msg.body="Link a encuesta "+surveylink
             mail.send(msg)
     return "Mensajes enviados."
 
