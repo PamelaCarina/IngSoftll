@@ -354,7 +354,7 @@ def saveEncuesta():
         return "ok"
 
 
-@app.route("/viewCorreos/",methods=['GET','POST']) #POST es para editar correo
+'''@app.route("/viewCorreos/",methods=['GET','POST']) #POST es para editar correo
 def viewCorreos():
     if request.method=='POST': #editar correo
         correo=request.form('correo_encuestado')
@@ -362,9 +362,16 @@ def viewCorreos():
         encuestado.correo_encuestado=correo
         db.session.add(encuestado)
         db.session.commit()
-    return
+    return'''
 
-@app.route("/<int:id_encuestado>/ingresarCorreo/",methods=['POST'])
+@app.route("/viewCorreos/",methods=['GET'])
+def viewCorreos():
+    correos=Encuestado.query.with_entities(Encuestado.correo_encuestado).all()
+    correos=[tuple(row) for row in correos]
+    #return Response(json.dumps(correos), mimetype='application/json')
+    return jsonify(correos)
+
+'''@app.route("/<int:id_encuestado>/ingresarCorreo/",methods=['POST'])
 def ingresarCorreo(correo):
     encuestado=Encuestado(correo_encuestado=correo)
     db.session.add(encuestado)
@@ -386,7 +393,7 @@ def filtrarCorreo(tag):
         correos=db_session.query(Encuestado).join(Tag_encuesta).filter(Tag_encuesta.id_tag==tag)
         #enviar a front end la lista de correos filtrados
         return jsonify(correos)
-    return render_template('index.html')
+    return render_template('index.html')'''
 
 #@app.post("/<int:id_encuesta>/sendCorreos/")
 #def sendCorreos(id_encuesta):
