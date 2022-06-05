@@ -8,6 +8,7 @@ import {useNavigate, useParams} from 'react-router-dom'
 
 
 const EncuestaRespondible = () => {
+    const [correos,setCorreos] = useState([]);
     const [encuesta, setEncuesta] = useState([]);
     const [correo, setCorreo] = useState('');
     const [preguntas, setPreguntas] = useState([]);
@@ -16,6 +17,7 @@ const EncuestaRespondible = () => {
     const id = useParams();
     const urlS = `http://localhost:5000/showEncuesta/${id.id}`;
     const urlA = `http://localhost:5000/saveRespuestas`;
+
 
     useEffect(() => {
         axios.get(`${urlS}`).then(response => {
@@ -145,9 +147,15 @@ const EncuestaRespondible = () => {
     return(
         <Container>
             {arr}
+            {correosHTML}
             <Button onClick={enviarEncuesta}>Enviar encuesta</Button>
         </Container>
     );
 }
 
 export default EncuestaRespondible;
+
+
+
+
+
