@@ -175,7 +175,7 @@ def saveRespuestas():
     encuesta = db.session.query(Encuesta).filter(Encuesta.id_encuesta == id).first()
     if exists is False:  # si es un correo nuevo, se añade
         encuestado = Encuestado(correo_encuestado=correo)
-        encuestado.encuestas.append(encuesta, fecha_contestacion=datetime.datetime.now().date())
+        encuestado.encuestas.append(encuesta)
         db.session.add(encuestado)
     else:
         encuestado = db.session.query(Encuestado).filter(Encuestado.correo_encuestado == correo).first()
