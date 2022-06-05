@@ -3,6 +3,7 @@ import {Container, Navbar, Nav} from 'react-bootstrap';
 
 import BotonAgregarEncuesta from '../../components/BotonAgregarEncuesta';
 import ModalAgregarEncuesta from '../../components/ModalAgregarEncuesta';
+import ModalEnviarCorreo from '../../components/ModalEnviarCorreo';
 import ListaEncuestas from '../../components/ListaEncuestas'
 import {useParams} from "react-router-dom";
 import axios from "axios";
@@ -28,8 +29,8 @@ const Administrador = () => {
                 </Nav>
                 </Container>
             </Navbar>
-            <h1> Bienvenido usuario {user} </h1>
-            <Container style={{marginTop: "150px", marginBottom:"50px"}}>
+            <h1> Bienvenido usuario {user} </h1> 
+            <Container style={{marginTop: "300px", marginBottom:"50px"}}> 
                 <ModalAgregarEncuesta> </ModalAgregarEncuesta>
                 <ListaEncuestas idE={idE}> </ListaEncuestas>
                 <BotonAgregarEncuesta> </BotonAgregarEncuesta>
