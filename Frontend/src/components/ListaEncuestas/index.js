@@ -3,7 +3,7 @@ import { useParams} from 'react-router-dom'
 import axios from 'axios'
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from 'react-bootstrap/Button'
-import {Card, ListGroupItem} from "react-bootstrap";
+import {Card, ListGroupItem, ButtonGroup} from "react-bootstrap";
 
 const ListaEncuestas = () => {
     const [encuestas, setEncuestas] = useState([]);
@@ -26,11 +26,13 @@ const ListaEncuestas = () => {
         const desc = encE.descripcion_encuesta
         const id_enc = encE.id_encuesta
         return (
-            <Card>
-                <ListGroup.Item action variant="light" className="position-relative position-relative-example">
+            <Card className="mb-3">
+                <ListGroup.Item variant="dark" className="d-flex align-items-center justify-content-between ">
                     {titulo}
-                    <Button variant="primary" className="position-absolute top-50 start-50 translate-middle">Editar</Button>{' '}
-                    <Button variant="danger" onClick={deleteEncuesta.bind(this, id_enc)} className="position-absolute top-50 start-100 translate-middle">Eliminar</Button>{' '}
+                    <ButtonGroup className="d-flex justify-content-end">
+                        <Button variant="primary" >Editar</Button>{' '}
+                        <Button variant="danger" onClick={deleteEncuesta.bind(this, id_enc)}>Eliminar</Button>{' '}
+                    </ButtonGroup>
                 </ListGroup.Item>
                 <ListGroup.Item>
                     {desc}

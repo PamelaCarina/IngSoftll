@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import swal from "sweetalert";
+import Swal from "sweetalert2"
 import validator from "validator/es";
 import axios from "axios";
 import {Container, Button, Card, ListGroup, Row, ListGroupItem, CardGroup} from "react-bootstrap";
@@ -18,7 +19,6 @@ const EncuestaRespondible = () => {
     const urlS = `http://localhost:5000/showEncuesta/${id.id}`;
     const urlA = `http://localhost:5000/saveRespuestas`;
 
-
     useEffect(() => {
         axios.get(`${urlS}`).then(response => {
             setEncuesta(response.data[0])
@@ -30,6 +30,21 @@ const EncuestaRespondible = () => {
     let nav = useNavigate();
     const redirectHome = () =>{
         nav(`/`);
+    }
+    const confirmar = () =>{
+        Swal.fire({
+          title: '¿Estás seguro de querer enviar la encuesta?',
+          icon: 'warning',
+          showDenyButton: true,
+          confirmButtonText: 'Sí',
+          denyButtonText: `No`,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            enviarEncuesta()
+          } else if (result.isDenied){
+                return
+          }
+        })
     }
     const enviarEncuesta = async () =>{
         var dict = []
@@ -65,8 +80,15 @@ const EncuestaRespondible = () => {
                 })
             const res = await axios.put(`${urlA}`,{dict}).
             then( response =>{
-                swal("Correcto", response.data, "success")
-                redirectHome()
+                Swal.fire({
+                  title: '¡Encuesta enviada!',
+                  icon: 'success',
+                  confirmButtonText: 'Gracias',
+                }).then((result2) => {
+                  if (result2.isConfirmed) {
+                    redirectHome()
+                  }
+                })
             }).catch((err) => swal("Error", err.response.data, "error") )
         }
     }
@@ -86,7 +108,7 @@ const EncuestaRespondible = () => {
                 const enunciadoA = alternativasP.enunciado_alternativa
                 const idA = alternativasP.id_alternativa
                 return (
-                    (preguntasE.id_pregunta === alternativasP.id_pregunta) && (<ListGroup.Item key={idA} active={act.has(idA)?true:false} onClick={ () => {
+                    (preguntasE.id_pregunta === alternativasP.id_pregunta) && (<ListGroup.Item action key={idA} active={act.has(idA)?true:false} onClick={ () => {
                         if(act.has(idA)){
                             act.delete(idA);
                             setAct(new Map(act))
@@ -114,7 +136,7 @@ const EncuestaRespondible = () => {
                 );
             })
             return (
-                <Card>
+                <Card className="mb-3">
                     <Card.Header>
                         <Card.Title>{enunciado}</Card.Title>
                     </Card.Header>
@@ -131,7 +153,7 @@ const EncuestaRespondible = () => {
                     <Card.Text>{descripcion}</Card.Text>
                 </Card.Header>
                 <Card.Body>
-                    <Card>
+                    <Card className="mb-3">
                         <Card.Header>
                             <Card.Title>Ingrese su correo electrónico</Card.Title>
                         </Card.Header>
@@ -147,15 +169,9 @@ const EncuestaRespondible = () => {
     return(
         <Container>
             {arr}
-            {correosHTML}
-            <Button onClick={enviarEncuesta}>Enviar encuesta</Button>
+            <Button onClick={confirmar}>Enviar encuesta</Button>
         </Container>
     );
 }
 
 export default EncuestaRespondible;
-
-
-
-
-

@@ -204,6 +204,37 @@ def saveRespuestas():
 #@app.route("/login")
 #@app.route("/signIn")
 
+@app.route("/login",methods=['GET','POST'])
+def login(correo,password):
+    if request.method=='POST':
+        '''exists=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
+        if exists is False:
+            return 'Correo o contraseña incorrectos'
+        editor=Editor.query.get_or_404(correo) #cambiar id a correo
+        if(editor.password!=password):
+            return 'Correo o contraseña incorrectos'
+        return jsonify([editor.correo_editor, editor.nombre, editor.password])'''
+        editor=Editor.query.get(correo)
+        if editor is not None and editor.password==password:
+            return jsonify([editor.correo_editor, editor.nombre, editor.password])
+        return 'Correo o contraseña incorrectos'
+
+@app.route("/signup",methods=['GET','POST']) #cambiar? para sprint 3
+def signup(correo,nombre,password):
+    if request.method=='POST':
+        exists_c=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
+        if exists_c is True:
+            return 'Correo ya registrado'
+        exists_u=db.session.query(db.exists().where(Editor.nombre==nombre)).scalar()
+        if exists_u is True:
+            return 'Nombre ya registrado'
+        editor=Editor(correo_editor=correo,
+        nombre=nombre,
+        password=password)
+        db.session.add(ce)
+        db.session.commit()
+        return 'Registrado exitosamente'
+
 @app.route("/getUser/<idEd>", methods=['GET'])
 def getUser(idEd):
     editor = db.session.query(Editor).where(Editor.id_editor == idEd)
@@ -323,7 +354,7 @@ def saveEncuesta():
         return "ok"
 
 
-@app.route("/viewCorreos/",methods=['GET','POST']) #POST es para editar correo
+'''@app.route("/viewCorreos/",methods=['GET','POST']) #POST es para editar correo
 def viewCorreos():
     if request.method=='POST': #editar correo
         correo=request.form('correo_encuestado')
@@ -331,9 +362,16 @@ def viewCorreos():
         encuestado.correo_encuestado=correo
         db.session.add(encuestado)
         db.session.commit()
-    return
+    return'''
 
-@app.route("/<int:id_encuestado>/ingresarCorreo/",methods=['POST'])
+@app.route("/viewCorreos/",methods=['GET'])
+def viewCorreos():
+    correos=Encuestado.query.with_entities(Encuestado.correo_encuestado).all()
+    correos=[tuple(row) for row in correos]
+    #return Response(json.dumps(correos), mimetype='application/json')
+    return jsonify(correos)
+
+'''@app.route("/<int:id_encuestado>/ingresarCorreo/",methods=['POST'])
 def ingresarCorreo(correo):
     encuestado=Encuestado(correo_encuestado=correo)
     db.session.add(encuestado)
@@ -355,20 +393,19 @@ def filtrarCorreo(tag):
         correos=db_session.query(Encuestado).join(Tag_encuesta).filter(Tag_encuesta.id_tag==tag)
         #enviar a front end la lista de correos filtrados
         return jsonify(correos)
-    return render_template('index.html')
+    return render_template('index.html')'''
 
 #@app.post("/<int:id_encuesta>/sendCorreos/")
 #def sendCorreos(id_encuesta):
 #   link="surveycado.com/encuesta/ "+id_encuesta
 @app.route("/sendCorreos/",methods=['POST']) #envia los correos para una encuesta dada a toda la lista de correos
 def sendCorreos():
-    link="surveycado.com/encuesta/"
-    link_html='<a href='+link+'>'+link+'</a>'
+    surveylink="http://surveycado.com/encuesta/"
     users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
         for user in users:
             msg=Message('subject', sender=("Surveycado 🥑",'esalini2017@inf.udec.cl'),recipients=[''.join(user)])
-            msg.body="Link encuesta "+link_html
+            msg.body="Link a encuesta "+surveylink
             mail.send(msg)
     return "Mensajes enviados."
 
