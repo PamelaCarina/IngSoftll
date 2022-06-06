@@ -2,6 +2,14 @@ import React, {useEffect, useState} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Container, Button, Navbar, Card} from "react-bootstrap";
 import EncuestaRespondible from '../../components/encuestaRespondible'
+import MyNavbar from '../../components/Navbar';
+
+let menuNavbar = [
+    {
+        name: "",
+        rute: ""
+    }
+]
 
 const Encuesta = () => {
     const {id} = useParams();
@@ -21,11 +29,7 @@ const Encuesta = () => {
 
     return (
         <>
-            <Navbar bg="dark" variant="dark">
-                <Container>
-                    <Navbar.Brand href="">SurveyCado</Navbar.Brand>
-                </Container>
-            </Navbar>
+            <MyNavbar menuNavbarEncuesta={menuNavbar}/>
             <Container className="justify-content-md-center" style={{marginTop: "50px", marginBottom:"50px"}}>
                 {!(show) && encuestiwi}
                 {

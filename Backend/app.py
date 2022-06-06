@@ -11,16 +11,16 @@ from flask_mail import Mail, Message
 from sqlalchemy import func
 
 app = Flask(__name__)
-mail = Mail(app)
 cors = CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'correo@gmail.com'
-app.config['MAIL_PASSWORD'] = 'password'
+app.config['MAIL_USERNAME'] = 'surveycadocl@gmail.com'
+app.config['MAIL_PASSWORD'] = 'atlldekvrqynwapr'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -55,12 +55,14 @@ class Tag(db.Model): #CLASE TAG
 
 class Editor(db.Model): #CLASE EDITOR
     id_editor = db.Column(db.Integer, primary_key=True)
+    username_editor = db.Column(db.String(30), unique=True)
     correo_editor = db.Column(db.String(30), unique=True)
     password = db.Column(db.String(30), unique=True)
     encuestas = db.relationship('Encuesta', backref='editor')
 
-    def __init__(self, id_editor, correo_editor, password):
+    def __init__(self, id_editor, username_editor, correo_editor, password):
         self.id_editor = id_editor
+        self.username_editor = username_editor
         self.correo_editor = correo_editor
         self.password = password
 
@@ -113,10 +115,10 @@ db.create_all()
 
 class EditorSchema(ma.Schema):
     class Meta:
-        fields = ('id_editor', 'correo_editor', 'password')
+        fields = ('id_editor', 'username_editor', 'correo_editor', 'password')
 
 editor_schema = EditorSchema()
-editor_schema = EditorSchema(many=True, only=("id_editor","correo_editor"))
+editor_schema = EditorSchema(many=True)
 
 
 class TagSchema(ma.Schema):
@@ -205,19 +207,30 @@ def saveRespuestas():
 #@app.route("/signIn")
 
 @app.route("/login",methods=['GET','POST'])
-def login(correo,password):
+def login():
+    data = request.get_json()
+    correo=data['correo']
+    password=data['password']
     if request.method=='POST':
-        '''exists=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
-        if exists is False:
+        editor = db.session.query(Editor).where(Editor.correo_editor == correo)
+        editorDump = editor_schema.dump(editor)
+
+        for data in editorDump:
+            for [key, value] in data.items():
+                if(key == 'password'):
+                    password_editor = value
+
+                elif(key == 'correo_editor'):
+                    mail_editor = value
+
+                elif(key == 'id_editor'):
+                    id_Editor = value
+
+        if editorDump is not None and password_editor==password:
+            return jsonify([id_Editor, mail_editor, password_editor])
+        else:
             return 'Correo o contraseña incorrectos'
-        editor=Editor.query.get_or_404(correo) #cambiar id a correo
-        if(editor.password!=password):
-            return 'Correo o contraseña incorrectos'
-        return jsonify([editor.correo_editor, editor.nombre, editor.password])'''
-        editor=Editor.query.get(correo)
-        if editor is not None and editor.password==password:
-            return jsonify([editor.correo_editor, editor.nombre, editor.password])
-        return 'Correo o contraseña incorrectos'
+
 
 @app.route("/signup",methods=['GET','POST']) #cambiar? para sprint 3
 def signup(correo,nombre,password):
@@ -253,6 +266,8 @@ def deleteEncuesta(idE):
         #    print(a.id_alternativa)
         #    print("***********")
         db.session.delete(p)
+    db.session.query(Contesta_encuesta).filter(Contesta_encuesta.c.id_encuesta==idE).delete()
+    db.session.commit()
     Encuesta.query.filter(Encuesta.id_encuesta == idE).delete()
     db.session.commit()
     return 'lol'
@@ -303,6 +318,8 @@ def saveEncuesta():
         #Se extraen los datos de la encuesta
         for element in data:
             for att, value in element.items():
+                if att == 'idEditor':
+                    id_editor = value
                 if att == 'titulo_encuesta':
                     titulo_encuesta = value
                 if att == 'descripcion_encuesta':
@@ -312,7 +329,7 @@ def saveEncuesta():
 
         # Se crea una nueva encuesta
         fecha_creacion = datetime.datetime.now().date()
-        new_encuesta = Encuesta(id_encuesta, 1, titulo_encuesta, descripcion_encuesta, fecha_creacion)
+        new_encuesta = Encuesta(id_encuesta, id_editor, titulo_encuesta, descripcion_encuesta, fecha_creacion)
         """
         # Se extraen los tags de la encuesta
         se necesita: 
@@ -397,17 +414,22 @@ def filtrarCorreo(tag):
 
 #@app.post("/<int:id_encuesta>/sendCorreos/")
 #def sendCorreos(id_encuesta):
-#   link="surveycado.com/encuesta/ "+id_encuesta
+#surveylink="surveycado.com/encuesta/"+string(id_encuesta)
 @app.route("/sendCorreos/",methods=['POST']) #envia los correos para una encuesta dada a toda la lista de correos
 def sendCorreos():
-    surveylink="http://surveycado.com/encuesta/"
+    id_encuesta = request.get_json()
+
+    
+    surveylink="http://localhost:3000/encuesta/"+str(id_encuesta["idEncuesta"])
+    titulo=(Encuesta.query.get(id_encuesta["idEncuesta"])).titulo_encuesta
     users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
         for user in users:
-            msg=Message('subject', sender=("Surveycado 🥑",'esalini2017@inf.udec.cl'),recipients=[''.join(user)])
+            msg=Message('Encuesta Surveycado🥑: '+titulo, sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(user)])
             msg.body="Link a encuesta "+surveylink
             mail.send(msg)
     return "Mensajes enviados."
+    
 
 if __name__ == "__main__":
     app.run()

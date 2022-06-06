@@ -1,11 +1,17 @@
 import React, {useState} from "react";
+import { useParams} from 'react-router-dom'
 import {Modal, Button, InputGroup, Form} from 'react-bootstrap'
 import CardPregunta from '../../components/CardPregunta';
+import swal from 'sweetalert';
 import axios from 'axios';
 
 // id_encuesta, titulo_encuesta, descripcion_encuesta, id_pregunta, enunciado_pregunta, id_alternativa, enunciado_alternativa, contador_alternativa
 
+//se puede enviar a la base de datos titulos y descripcion sin preguntas
+
 const ModalAgregarEncuesta = () => {
+
+  const idEditor = useParams();
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -14,11 +20,43 @@ const ModalAgregarEncuesta = () => {
   const [inputs, setInputs] = useState({});
 
   const onAddCardClick = () => {
-    setId_Pregunta(id_pregunta+1);
-    setCardList(cardList.concat(<CardPregunta id_pregunta={id_pregunta} handleChange={handleChange}/>));
+    if(cardList.length < 10){
+      setId_Pregunta(id_pregunta+1);
+      setCardList(cardList.concat(<CardPregunta id_pregunta={id_pregunta} handleChange={handleChange}/>));
+    }
+    else{
+      swal("Alto!", "No puedes añadir más preguntas, eso va contra la ley", "error")
+    }
   }
 
-  const vaciarCardList = () => {
+  const vaciarCardListGuardar = (event) => {
+    console.log("length",cardList.length);
+    for(let[key,value] in inputs){
+      if(value.length===0){
+        console.log("primer if");
+        event.preventDefault();
+        return false;
+      }
+    }
+    setCardList([]);
+    setShow(false);
+    setId_Pregunta(1);
+/*
+    if((cardList.length === 0) || (inputs.titulo_encuesta.length===0) || (inputs.descripcion_encuesta.length===0) || (inputs.enunciado_alternativa.length===0) || (inputs.enunciado_pregunta.length===0)){
+      console.log("primer if");
+      //event.preventDefault();
+    }
+    else{
+      console.log("EN EL ELSE");
+      setCardList([]);
+      setShow(false);
+      setId_Pregunta(1);
+    }
+  */
+    return true;
+  }
+
+  const vaciarCardListCancelar = () => {
     setCardList([]);
     setShow(false);
     setId_Pregunta(1);
@@ -30,13 +68,25 @@ const ModalAgregarEncuesta = () => {
     setInputs(values => ({...values, [name]: value}))
   }
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event) => {
+    // const form = event.currentTarget;
+    
+    // if (form.checkValidity() === false) {
+    //   // e.preventDefault();
+    //   event.stopPropagation();        
+    // }
+
+    // setValidated(true);
+    if(!vaciarCardListGuardar())
+      return
+
+    console.log(inputs)
     var dict = []
     var dictP = []
     var dictA = []
-    var iterP=1;
+    var iterP=1
     var iterA=1;
+    dict.push({idEditor: idEditor.idEd})
     for(let [key,value] of Object.entries(inputs)){
       if(key === 'titulo_encuesta'){
         dict.push({
@@ -75,13 +125,40 @@ const ModalAgregarEncuesta = () => {
       preguntas: dictP
     });
     //console.log(dict)
-    axios.post('http://localhost:5000/saveEncuesta', {dict} )
+
+    //console.log(inputs.titulo_encuesta)
+    for(let[key,value] in inputs){
+      if(value.length===0){
+        console.log("primer if");
+        event.preventDefault();
+      }
+    }
+    await axios.post('http://localhost:5000/saveEncuesta', {dict} )
        .then(res => {
          console.log(res);
-         alert("Enviado Crrectamente")
+         alert("Enviado Correctamente")
        })
+  
      handleClose(true);
+/*
+    if((cardList.length === 0) || (inputs.titulo_encuesta.length===0) || (inputs.descripcion_encuesta.length===0) || (inputs.enunciado_alternativa.length===0) || (inputs.enunciado_pregunta.length===0)){
+      console.log("primer if");
+      //event.preventDefault();
+    }
+     else {
+      console.log("que wea 2.0")
+      axios.post('http://localhost:5000/saveEncuesta', {dict} )
+         .then(res => {
+           console.log(res);
+           alert("Enviado Correctamente")
+         })
+    
+       handleClose(true);
+       //event.preventDefault();
+      }
+    */
   }
+
   return (
       <>
         <Button variant="primary" size="lg" onClick={handleShow} className="mb-3">
@@ -95,13 +172,28 @@ const ModalAgregarEncuesta = () => {
           <Form onSubmit={handleSubmit}>
             <Modal.Body>
               <InputGroup className="mb-3">
-                <Form.Control name="titulo_encuesta" placeholder="Título" aria-label="Título"
-                              aria-describedby="basic-addon2" size="lg" type="text" autoFocus onChange={handleChange}/>
+                <Form.Control 
+                  required
+                  name="titulo_encuesta" 
+                  placeholder="Título" aria-label="Título"
+                  aria-describedby="basic-addon2" 
+                  size="lg" 
+                  type="text" 
+                  autoFocus 
+                  onChange={handleChange}/>
               </InputGroup>
               <InputGroup className="mb-3">
-                <Form.Control name="descripcion_encuesta" placeholder="Descripción" aria-label="Descripción"
-                              aria-describedby="basic-addon2" as="textarea" rows={3} type="text" autoFocus
-                              onChange={handleChange}/>
+                <Form.Control 
+                  required
+                  name="descripcion_encuesta" 
+                  placeholder="Descripción" 
+                  aria-label="Descripción"
+                  aria-describedby="basic-addon2" 
+                  as="textarea" 
+                  rows={3} 
+                  type="text" 
+                  autoFocus
+                  onChange={handleChange}/>
               </InputGroup>
               {cardList}
               <Button variant="info" onClick={() => {
@@ -109,8 +201,8 @@ const ModalAgregarEncuesta = () => {
               }}>Agregar Pregunta</Button>
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="secondary" onClick={vaciarCardList}>Cancelar</Button>
-              <Button variant="primary" type="submit" onClick={vaciarCardList}>Guardar Encuesta</Button>
+              <Button variant="secondary" onClick={vaciarCardListCancelar}>Cancelar</Button>
+              <Button variant="primary" type="submit">Guardar Encuesta</Button>
             </Modal.Footer>
           </Form>
         </Modal>
