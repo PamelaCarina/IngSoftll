@@ -11,16 +11,16 @@ from flask_mail import Mail, Message
 from sqlalchemy import func
 
 app = Flask(__name__)
-mail = Mail(app)
 cors = CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'correo@gmail.com'
-app.config['MAIL_PASSWORD'] = 'password'
+app.config['MAIL_USERNAME'] = 'surveycadocl@gmail.com'
+app.config['MAIL_PASSWORD'] = 'atlldekvrqynwapr'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -415,7 +415,7 @@ def sendCorreos():
     users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
         for user in users:
-            msg=Message('subject', sender=("Surveycado 🥑",'esalini2017@inf.udec.cl'),recipients=[''.join(user)])
+            msg=Message('subject', sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(user)])
             msg.body="Link a encuesta "+surveylink
             mail.send(msg)
     return "Mensajes enviados."
