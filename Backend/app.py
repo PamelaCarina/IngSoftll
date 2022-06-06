@@ -116,7 +116,7 @@ class EditorSchema(ma.Schema):
         fields = ('id_editor', 'correo_editor', 'password')
 
 editor_schema = EditorSchema()
-editor_schema = EditorSchema(many=True, only=("id_editor","correo_editor"))
+editor_schema = EditorSchema(many=True)
 
 
 class TagSchema(ma.Schema):
@@ -205,19 +205,30 @@ def saveRespuestas():
 #@app.route("/signIn")
 
 @app.route("/login",methods=['GET','POST'])
-def login(correo,password):
+def login():
+    data = request.get_json()
+    correo=data['correo']
+    password=data['password']
     if request.method=='POST':
-        '''exists=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
-        if exists is False:
+        editor = db.session.query(Editor).where(Editor.correo_editor == correo)
+        editorDump = editor_schema.dump(editor)
+
+        for data in editorDump:
+            for [key, value] in data.items():
+                if(key == 'password'):
+                    password_editor = value
+
+                elif(key == 'correo_editor'):
+                    mail_editor = value
+
+                elif(key == 'id_editor'):
+                    id_Editor = value
+
+        if editorDump is not None and password_editor==password:
+            return jsonify([id_Editor, mail_editor, password_editor])
+        else:
             return 'Correo o contraseña incorrectos'
-        editor=Editor.query.get_or_404(correo) #cambiar id a correo
-        if(editor.password!=password):
-            return 'Correo o contraseña incorrectos'
-        return jsonify([editor.correo_editor, editor.nombre, editor.password])'''
-        editor=Editor.query.get(correo)
-        if editor is not None and editor.password==password:
-            return jsonify([editor.correo_editor, editor.nombre, editor.password])
-        return 'Correo o contraseña incorrectos'
+
 
 @app.route("/signup",methods=['GET','POST']) #cambiar? para sprint 3
 def signup(correo,nombre,password):

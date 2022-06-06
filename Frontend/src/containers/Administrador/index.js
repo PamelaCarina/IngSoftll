@@ -1,12 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {Container, Navbar, Nav} from 'react-bootstrap';
+import {Container} from 'react-bootstrap';
 
-import BotonAgregarEncuesta from '../../components/BotonAgregarEncuesta';
+import BotonAgregarEncuesta from '../../components/BotonAgregarEncuesta'; //porfis no sacar esto o sino queda la senda cagá
 import ModalAgregarEncuesta from '../../components/ModalAgregarEncuesta';
+import MyNavbar from '../../components/Navbar';
 import ListaEncuestas from '../../components/ListaEncuestas'
 import {useParams} from "react-router-dom";
 import axios from "axios";
 
+let menuNavbar = [
+    {
+        name: "Cerrar Sesión",
+        rute: "/"
+    }
+]
 
 const Administrador = () => {
     const [user, setUser] = useState('')
@@ -20,19 +27,12 @@ const Administrador = () => {
     })
     return (
         <>
-            <Navbar bg="dark" variant="dark">
-                <Container>
-                <Navbar.Brand href="">SurveyCado</Navbar.Brand>
-                <Nav className="me-auto">
-                    <Nav.Link href="/" >Log out</Nav.Link>
-                </Nav>
-                </Container>
-            </Navbar>
-            <h1> Bienvenido usuario {user} </h1>
+            <MyNavbar menuNavbarAdmin={menuNavbar}/>
+            <h1> Bienvenido {user} </h1>
             <Container style={{marginTop: "150px", marginBottom:"50px"}}>
                 <ModalAgregarEncuesta> </ModalAgregarEncuesta>
                 <ListaEncuestas idE={idE}> </ListaEncuestas>
-                <BotonAgregarEncuesta> </BotonAgregarEncuesta>
+                {/* <BotonAgregarEncuesta> </BotonAgregarEncuesta> */}
             </Container>
 
         </>

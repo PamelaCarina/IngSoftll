@@ -21,10 +21,12 @@ const ListaEncuestas = () => {
         //console.log(idE)
         axios.delete(`${urlDel}${idE}`);
     }
+
     const enc = encuestas.map(encE =>{
         const titulo = encE.titulo_encuesta
         const desc = encE.descripcion_encuesta
         const id_enc = encE.id_encuesta
+
         return (
             <Card className="mb-3">
                 <ListGroup.Item variant="dark" className="d-flex align-items-center justify-content-between ">
@@ -40,6 +42,7 @@ const ListaEncuestas = () => {
             </Card>
         );
     })
+    
     return(
         <>
             <ListGroup>
