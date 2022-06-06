@@ -55,12 +55,14 @@ class Tag(db.Model): #CLASE TAG
 
 class Editor(db.Model): #CLASE EDITOR
     id_editor = db.Column(db.Integer, primary_key=True)
+    username_editor = db.Column(db.String(30), unique=True)
     correo_editor = db.Column(db.String(30), unique=True)
     password = db.Column(db.String(30), unique=True)
     encuestas = db.relationship('Encuesta', backref='editor')
 
-    def __init__(self, id_editor, correo_editor, password):
+    def __init__(self, id_editor, username_editor, correo_editor, password):
         self.id_editor = id_editor
+        self.username_editor = username_editor
         self.correo_editor = correo_editor
         self.password = password
 
@@ -113,7 +115,7 @@ db.create_all()
 
 class EditorSchema(ma.Schema):
     class Meta:
-        fields = ('id_editor', 'correo_editor', 'password')
+        fields = ('id_editor', 'username_editor', 'correo_editor', 'password')
 
 editor_schema = EditorSchema()
 editor_schema = EditorSchema(many=True)
@@ -264,6 +266,8 @@ def deleteEncuesta(idE):
         #    print(a.id_alternativa)
         #    print("***********")
         db.session.delete(p)
+    db.session.query(Contesta_encuesta).filter(Contesta_encuesta.c.id_encuesta==idE).delete()
+    db.session.commit()
     Encuesta.query.filter(Encuesta.id_encuesta == idE).delete()
     db.session.commit()
     return 'lol'
@@ -314,6 +318,8 @@ def saveEncuesta():
         #Se extraen los datos de la encuesta
         for element in data:
             for att, value in element.items():
+                if att == 'idEditor':
+                    id_editor = value
                 if att == 'titulo_encuesta':
                     titulo_encuesta = value
                 if att == 'descripcion_encuesta':
@@ -323,7 +329,7 @@ def saveEncuesta():
 
         # Se crea una nueva encuesta
         fecha_creacion = datetime.datetime.now().date()
-        new_encuesta = Encuesta(id_encuesta, 1, titulo_encuesta, descripcion_encuesta, fecha_creacion)
+        new_encuesta = Encuesta(id_encuesta, id_editor, titulo_encuesta, descripcion_encuesta, fecha_creacion)
         """
         # Se extraen los tags de la encuesta
         se necesita: 
@@ -408,17 +414,22 @@ def filtrarCorreo(tag):
 
 #@app.post("/<int:id_encuesta>/sendCorreos/")
 #def sendCorreos(id_encuesta):
-#   link="surveycado.com/encuesta/ "+id_encuesta
+#surveylink="surveycado.com/encuesta/"+string(id_encuesta)
 @app.route("/sendCorreos/",methods=['POST']) #envia los correos para una encuesta dada a toda la lista de correos
 def sendCorreos():
-    surveylink="http://surveycado.com/encuesta/"
+    id_encuesta = request.get_json()
+
+    
+    surveylink="http://localhost:3000/encuesta/"+str(id_encuesta["idEncuesta"])
+    titulo=(Encuesta.query.get(id_encuesta["idEncuesta"])).titulo_encuesta
     users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
         for user in users:
-            msg=Message('subject', sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(user)])
+            msg=Message('Encuesta Surveycado🥑: '+titulo, sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(user)])
             msg.body="Link a encuesta "+surveylink
             mail.send(msg)
     return "Mensajes enviados."
+    
 
 if __name__ == "__main__":
     app.run()

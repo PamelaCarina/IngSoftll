@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { useParams} from 'react-router-dom'
 import {Modal, Button, InputGroup, Form} from 'react-bootstrap'
 import CardPregunta from '../../components/CardPregunta';
 import swal from 'sweetalert';
@@ -9,6 +10,8 @@ import axios from 'axios';
 //se puede enviar a la base de datos titulos y descripcion sin preguntas
 
 const ModalAgregarEncuesta = () => {
+
+  const idEditor = useParams();
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -27,10 +30,21 @@ const ModalAgregarEncuesta = () => {
   }
 
   const vaciarCardListGuardar = (event) => {
-    console.log("LENGHT",cardList.length);
-    if((cardList.length == 0) || (inputs.titulo_encuesta.lenght>0) || (inputs.descripcion_encuesta.lenght>0) || (inputs.enunciado_alternativa.lenght>0) || (inputs.enunciado_pregunta.lenght>0)){
+    console.log("length",cardList.length);
+    for(let[key,value] in inputs){
+      if(value.length===0){
+        console.log("primer if");
+        event.preventDefault();
+        return false;
+      }
+    }
+    setCardList([]);
+    setShow(false);
+    setId_Pregunta(1);
+/*
+    if((cardList.length === 0) || (inputs.titulo_encuesta.length===0) || (inputs.descripcion_encuesta.length===0) || (inputs.enunciado_alternativa.length===0) || (inputs.enunciado_pregunta.length===0)){
       console.log("primer if");
-      event.preventDefault();
+      //event.preventDefault();
     }
     else{
       console.log("EN EL ELSE");
@@ -38,6 +52,8 @@ const ModalAgregarEncuesta = () => {
       setShow(false);
       setId_Pregunta(1);
     }
+  */
+    return true;
   }
 
   const vaciarCardListCancelar = () => {
@@ -52,7 +68,7 @@ const ModalAgregarEncuesta = () => {
     setInputs(values => ({...values, [name]: value}))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     // const form = event.currentTarget;
     
     // if (form.checkValidity() === false) {
@@ -61,12 +77,16 @@ const ModalAgregarEncuesta = () => {
     // }
 
     // setValidated(true);
+    if(!vaciarCardListGuardar())
+      return
 
+    console.log(inputs)
     var dict = []
     var dictP = []
     var dictA = []
-    var iterP=1;
+    var iterP=1
     var iterA=1;
+    dict.push({idEditor: idEditor.idEd})
     for(let [key,value] of Object.entries(inputs)){
       if(key === 'titulo_encuesta'){
         dict.push({
@@ -107,22 +127,37 @@ const ModalAgregarEncuesta = () => {
     //console.log(dict)
 
     //console.log(inputs.titulo_encuesta)
-
-    if((cardList.length == 0) || (inputs.titulo_encuesta.lenght>0) || (inputs.descripcion_encuesta.lenght>0) || (inputs.enunciado_alternativa.lenght>0) || (inputs.enunciado_pregunta.lenght>0)){
+    for(let[key,value] in inputs){
+      if(value.length===0){
+        console.log("primer if");
+        event.preventDefault();
+      }
+    }
+    await axios.post('http://localhost:5000/saveEncuesta', {dict} )
+       .then(res => {
+         console.log(res);
+         alert("Enviado Correctamente")
+       })
+  
+     handleClose(true);
+/*
+    if((cardList.length === 0) || (inputs.titulo_encuesta.length===0) || (inputs.descripcion_encuesta.length===0) || (inputs.enunciado_alternativa.length===0) || (inputs.enunciado_pregunta.length===0)){
       console.log("primer if");
-      event.preventDefault();
+      //event.preventDefault();
     }
      else {
+      console.log("que wea 2.0")
       axios.post('http://localhost:5000/saveEncuesta', {dict} )
          .then(res => {
            console.log(res);
            alert("Enviado Correctamente")
          })
-  
+    
        handleClose(true);
        //event.preventDefault();
       }
-    }
+    */
+  }
 
   return (
       <>
@@ -167,7 +202,7 @@ const ModalAgregarEncuesta = () => {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={vaciarCardListCancelar}>Cancelar</Button>
-              <Button variant="primary" type="submit" onClick={vaciarCardListGuardar}>Guardar Encuesta</Button>
+              <Button variant="primary" type="submit">Guardar Encuesta</Button>
             </Modal.Footer>
           </Form>
         </Modal>

@@ -5,29 +5,30 @@ import { MDBTable, MDBTableBody, MDBTableHead } from 'mdbreact';
 
 interface props {
   titulo : String;
+  idEncuesta : Number;
 }
 
 
-const ModalAgregarCorreo: FC<props> = ({titulo}) => {
+const ModalAgregarCorreo: FC<props> = ({titulo, idEncuesta}) => {
 	const [show, setShow] = useState(false);
   const urlView = `http://localhost:5000/viewCorreos`;
-  const urlSend = `http://localhost:5000/sendCorreos`;
+  const urlSend = `http://localhost:5000/sendCorreos/`;
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true); 
+  const handleShow = () => {
+    axios.get(`${urlView}`).then(response => {
+    console.log(response.data)
+     setCorreos(response.data)
+    });
+    setShow(true); 
+  }
 
   const [correos,setCorreos] = useState([]);
 
   const sendCorreos = () => {
-    axios.post(`${urlSend}`,"ok");
+    axios.post(`${urlSend}`,{idEncuesta});
     handleClose(); 
   }
 
-  useEffect(() => {
-    axios.get(`${urlView}`).then(response => {
-      console.log(response.data)
-       setCorreos(response.data)
-    });
-  });
   const correosHTML = correos.map(correo => {
     let email = correo  
     return( 

@@ -23,15 +23,17 @@ const Administrador = () => {
     useEffect(() =>{
         axios.get(`${urlE}`).then(response => {
             //console.log(response.data[0].correo_editor)
-            setUser(response.data[0].correo_editor)
+            setUser(response.data[0].username_editor)
+            console.log(user)
         }).catch(err => console.log(err))
     })
     return (
         <>
             <MyNavbar menuNavbarAdmin={menuNavbar}/>
-            <h1> Bienvenido {user} </h1>
+            
             <Container style={{marginTop: "150px", marginBottom:"50px"}}>
-                <ModalAgregarEncuesta> </ModalAgregarEncuesta>
+                <h1> ¡Bienvenido {user}! </h1>
+                <ModalAgregarEncuesta idE={idE}> </ModalAgregarEncuesta>
                 <ListaEncuestas idE={idE}> </ListaEncuestas>
                 {/* <BotonAgregarEncuesta> </BotonAgregarEncuesta> */}
             </Container>
