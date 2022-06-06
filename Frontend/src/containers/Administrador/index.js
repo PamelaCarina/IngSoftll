@@ -4,6 +4,7 @@ import {Container} from 'react-bootstrap';
 import BotonAgregarEncuesta from '../../components/BotonAgregarEncuesta'; //porfis no sacar esto o sino queda la senda cagá
 import ModalAgregarEncuesta from '../../components/ModalAgregarEncuesta';
 import MyNavbar from '../../components/Navbar';
+import ModalEnviarCorreo from '../../components/ModalEnviarCorreo';
 import ListaEncuestas from '../../components/ListaEncuestas'
 import {useParams} from "react-router-dom";
 import axios from "axios";
