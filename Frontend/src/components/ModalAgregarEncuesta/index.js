@@ -68,7 +68,7 @@ const ModalAgregarEncuesta = () => {
     setInputs(values => ({...values, [name]: value}))
   }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     // const form = event.currentTarget;
     
     // if (form.checkValidity() === false) {
@@ -133,13 +133,15 @@ const ModalAgregarEncuesta = () => {
         event.preventDefault();
       }
     }
-    await axios.post('http://localhost:5000/saveEncuesta', {dict} )
+    //DEVELOPMENT POST
+    //axios.post('http://localhost:5009/saveEncuesta', {dict} )
+    //DEPLOYMENT POST
+    axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
        .then(res => {
          console.log(res);
          alert("Enviado Correctamente")
        })
-  
-     handleClose(true);
+     //handleClose(true);
 /*
     if((cardList.length === 0) || (inputs.titulo_encuesta.length===0) || (inputs.descripcion_encuesta.length===0) || (inputs.enunciado_alternativa.length===0) || (inputs.enunciado_pregunta.length===0)){
       console.log("primer if");

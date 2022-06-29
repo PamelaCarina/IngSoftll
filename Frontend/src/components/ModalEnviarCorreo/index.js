@@ -10,11 +10,15 @@ interface props {
 
 
 const ModalAgregarCorreo: FC<props> = ({titulo, idEncuesta}) => {
-	const [show, setShow] = useState(false);
-  const urlView = `http://localhost:5000/viewCorreos`;
-  const urlSend = `http://localhost:5000/sendCorreos/`;
-  const handleClose = () => setShow(false);
-  const handleShow = () => {
+    const [show, setShow] = useState(false);
+    //DEVELOPMENT URL
+    //const urlView = `http://localhost:5000/viewCorreos`;
+    //const urlSend = `http://localhost:5000/sendCorreos/`;
+    //DEPLOYMENT URL 152.74.52.191
+    const urlView = `http://152.74.52.191:5009/viewCorreos`;
+    const urlSend = `http://152.74.52.191:5009/sendCorreos/`;
+    const handleClose = () => setShow(false);
+    const handleShow = () => {
     axios.get(`${urlView}`).then(response => {
     console.log(response.data)
      setCorreos(response.data)

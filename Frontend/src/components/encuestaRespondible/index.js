@@ -16,8 +16,12 @@ const EncuestaRespondible = () => {
     const [alternativas, setAlternativas] = useState([]);
     const [act, setAct] = useState(new Map());
     const id = useParams();
-    const urlS = `http://localhost:5000/showEncuesta/${id.id}`;
-    const urlA = `http://localhost:5000/saveRespuestas`;
+    //DEVELOPMENT URL
+    //const urlS = `http://localhost:5009/showEncuesta/${id.id}`;
+    //const urlA = `http://localhost:5009/saveRespuestas`;
+    //DEPLOYMENT URL
+    const urlS = `http://152.74.52.191:5009/showEncuesta/${id.id}`;
+    const urlA = `http://152.74.52.191:5009/saveRespuestas`;
 
     useEffect(() => {
         axios.get(`${urlS}`).then(response => {

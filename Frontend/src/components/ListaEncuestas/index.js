@@ -9,9 +9,12 @@ import {Card, ListGroupItem, ButtonGroup} from "react-bootstrap";
 const ListaEncuestas = () => {
     const [encuestas, setEncuestas] = useState([]);
     const idE = useParams();
-    const urlList = `http://localhost:5000/listadoEncuestas/${idE.idEd}`;
-    const urlDel = `http://localhost:5000/deleteEncuesta/`;
-
+    //DEVELOPMENT URL
+    //const urlList = `http://localhost:5000/listadoEncuestas/${idE.idEd}`;
+    //const urlDel = `http://localhost:5000/deleteEncuesta/`;
+    //DEPLOYMENT URL 152.74.52.191
+    const urlList = `http://152.74.52.191:5009/listadoEncuestas/${idE.idEd}`;
+    const urlDel = `http://152.74.52.191:5009/deleteEncuesta/`;
     useEffect(() => {
         axios.get(`${urlList}`).then(response => {
             setEncuestas(response.data)
@@ -26,7 +29,6 @@ const ListaEncuestas = () => {
     const deleteEncuesta = (idE) => {
         //console.log(idE)
         axios.delete(`${urlDel}${idE}`);
-
         refresh();
     }
 
@@ -40,7 +42,6 @@ const ListaEncuestas = () => {
                 <ListGroup.Item variant="dark" className="d-flex align-items-center justify-content-between ">
                     {titulo}
                     <ButtonGroup className="d-flex justify-content-end">
-                        <Button variant="primary" >Editar</Button>{' '}
                         <ModalEnviarCorreo titulo= {titulo} idEncuesta = {id_enc}> </ModalEnviarCorreo>
                         <Button variant="danger" onClick={deleteEncuesta.bind(this, id_enc)}>Eliminar</Button>{' '}
                     </ButtonGroup>

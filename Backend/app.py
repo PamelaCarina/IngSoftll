@@ -12,7 +12,10 @@ from sqlalchemy import func
 
 app = Flask(__name__)
 cors = CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
+#DEVELOPMENT DATABASE
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
+#DEPLOYMENT DATABASE
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://equipo9:brsqlg@localhost/equipo9'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -244,7 +247,7 @@ def signup(correo,nombre,password):
         editor=Editor(correo_editor=correo,
         nombre=nombre,
         password=password)
-        db.session.add(ce)
+        #db.session.add(ce)
         db.session.commit()
         return 'Registrado exitosamente'
 
@@ -419,8 +422,10 @@ def filtrarCorreo(tag):
 def sendCorreos():
     id_encuesta = request.get_json()
 
-    
-    surveylink="http://localhost:3000/encuesta/"+str(id_encuesta["idEncuesta"])
+    #DEVELOPMENT URL
+    #surveylink="http://localhost:3000/encuesta/"+str(id_encuesta["idEncuesta"])
+    #DEPLOYMENT URL
+    surveylink = "http://152.74.52.191:3000/encuesta/" + str(id_encuesta["idEncuesta"])
     titulo=(Encuesta.query.get(id_encuesta["idEncuesta"])).titulo_encuesta
     users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
@@ -432,4 +437,4 @@ def sendCorreos():
     
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0', port=5009)
