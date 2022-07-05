@@ -16,8 +16,8 @@ const Home = () =>{
         <>
             <MyNavbar menuNavbarHome={menuNavbar}/>
             
-            <Container style={{marginTop: "80px"}}>
-                <h1>Bienvenido a Surveycado</h1>
+            <Container style={{marginTop: "20px"}}>
+                <h1 style={{textAlign:"center", marginBottom:"40px"}}>Bienvenido a Surveycado</h1>
                 <FormLogin/>
             </Container>
             {/* <MyFooter/> */}

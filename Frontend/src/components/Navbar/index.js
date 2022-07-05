@@ -87,7 +87,7 @@ const MyNavbar: FC<menuNavbar>  = ({menuNavbarAdmin, menuNavbarHome, menuNavbarS
                             className="d-inline-block align-top"
                             />
                         </Navbar.Brand>
-                        <Navbar.Brand href="">SurveyCado</Navbar.Brand>
+                        <Navbar.Brand href="/">SurveyCado</Navbar.Brand>
                 </Navbar>
             )}
         </>

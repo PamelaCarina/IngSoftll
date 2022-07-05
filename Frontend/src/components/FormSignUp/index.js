@@ -46,7 +46,7 @@ export default function Login() {
   return (
     <>
       <Col md={{ span: 3, offset: 4}} >
-        <h3>Iniciar Sesión</h3>
+        <h3>Registrarse</h3>
         <Form onSubmit={handleSubmit}>
            <Form.Group size="lg" controlId="username">
             <Form.Label>Nombre de Usuario</Form.Label>

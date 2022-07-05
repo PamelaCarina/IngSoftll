@@ -13,9 +13,8 @@ const SignUp = () =>{
     return (
         <>
             <MyNavbar menuNavbarSignUp={menuNavbar}/>
-
-            <Container style={{marginTop: "80px"}}>
-                <h1>Bienvenido a Surveycado</h1>
+            <Container style={{marginTop: "20px"}}>
+                <h1 style={{textAlign:"center", marginBottom:"40px"}}>Bienvenido a Surveycado</h1>
                 <FormSignUp/>
             </Container>
             {/* <MyFooter/> */}
