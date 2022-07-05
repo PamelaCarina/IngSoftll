@@ -8,7 +8,7 @@ from flask_cors import CORS
 from flask_mail import Mail, Message
 
 ####### APP CONFIG (APP, DB, MAIL) #######
-from sqlalchemy import func
+from sqlalchemy import func, engine
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -137,7 +137,8 @@ tags_schema = TagSchema(many=True, only=['tag'])
 
 class EncuestadoSchema(ma.Schema):
     class Meta:
-        attribute = 'correo_encuestado'
+        #attribute = 'correo_encuestado'
+        fields = ('correo_encuestado','suscrito')
 
 encuestado_schema = EncuestadoSchema()
 encuestados_schema = EncuestadoSchema(many=True)
@@ -209,9 +210,6 @@ def saveRespuestas():
 
 
 ###EDITOR###
-#@app.route("/login")
-#@app.route("/signIn")
-
 @app.route("/login",methods=['GET','POST'])
 def login():
     data = request.get_json()
@@ -266,7 +264,9 @@ def getTags():
     result = tags_schema.dump(tags)
     return jsonify(result)
 
-#@app.route("/editEncuesta")
+@app.route("/editEncuesta")
+def editEncuesta():
+    return
 
 @app.route("/deleteEncuesta/<idE>", methods=['DELETE'])
 def deleteEncuesta(idE):
@@ -335,24 +335,14 @@ def saveEncuesta():
                     titulo_encuesta = value
                 if att == 'descripcion_encuesta':
                     descripcion_encuesta = value
+                if att == 'tag_encuesta':
+                    tag_encuesta = value
                 if att == 'preguntas':
                     preguntas = value
 
         # Se crea una nueva encuesta
         fecha_creacion = datetime.datetime.now().date()
         new_encuesta = Encuesta(id_encuesta, id_editor, titulo_encuesta, descripcion_encuesta, fecha_creacion)
-        """
-        # Se extraen los tags de la encuesta
-        se necesita: 
-        recibir todos lostags 
-        verificar si el tag existe
-        almacenar los tags en:
-        TagEncuesta, Tag
-        for t in data['tag_encuesta']:
-            new_tag = Tag_encuesta(t['id_tag'], id_encuesta)
-            db.session.add(new_tag)
-        tag_encuesta = data['tag_encuesta']
-        """
         # Se añade el objeto encuesta a la BD
         db.session.add(new_encuesta)
         #Se itera por la preguntas
@@ -379,6 +369,7 @@ def saveEncuesta():
             max_id_pregunta += 1
         #Se guardan los cambios realizados en la BD
         db.session.commit()
+        db.engine.execute(Tag_encuesta.insert(),tag=tag_encuesta, id_encuesta=id_encuesta)
         return "ok"
 
 
