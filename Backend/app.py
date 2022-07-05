@@ -13,9 +13,9 @@ from sqlalchemy import func
 app = Flask(__name__)
 cors = CORS(app)
 #DEVELOPMENT DATABASE
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
 #DEPLOYMENT DATABASE
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://equipo9:brsqlg@localhost/equipo9'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://equipo9:brsqlg@localhost/equipo9'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -36,11 +36,13 @@ Tag_encuesta = db.Table('Tag_encuesta', #TABLA MANY TO MANY QUE RELACIONA A ENCU
 Contesta_encuesta = db.Table('Contesta_encuesta',  #TABLA MANY TO MANY QUE RELACIONA A ENCUESTADO CON ENCUESTA
     db.Column('correo_encuestado', db.String(40), db.ForeignKey('encuestado.correo_encuestado')),
     db.Column('id_encuesta', db.Integer, db.ForeignKey('encuesta.id_encuesta')),
-    db.Column('fecha_contestacion', db.String(30))
+    db.Column('fecha_contestacion', db.String(30), default=datetime.datetime.now().date())
 )
 
 class Encuestado(db.Model):  # CLASE ENCUESTADO
     correo_encuestado = db.Column(db.String(40), primary_key=True)
+    hash_encuestado = db.Column(db.Integer)
+    suscrito = db.Column(db.Boolean, default=True)
     encuestas = db.relationship('Encuesta', secondary=Contesta_encuesta, backref=db.backref('Encuestados_backref'),
                                 lazy='dynamic')
 
@@ -423,9 +425,9 @@ def sendCorreos():
     id_encuesta = request.get_json()
 
     #DEVELOPMENT URL
-    #surveylink="http://localhost:3000/encuesta/"+str(id_encuesta["idEncuesta"])
+    surveylink="http://localhost:3000/encuesta/"+str(id_encuesta["idEncuesta"])
     #DEPLOYMENT URL
-    surveylink = "http://152.74.52.191:3000/encuesta/" + str(id_encuesta["idEncuesta"])
+    #surveylink = "http://152.74.52.191:3000/encuesta/" + str(id_encuesta["idEncuesta"])
     titulo=(Encuesta.query.get(id_encuesta["idEncuesta"])).titulo_encuesta
     users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
