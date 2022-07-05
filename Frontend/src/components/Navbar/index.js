@@ -12,13 +12,17 @@ interface menuNavbar {
         name:String;
         rute:String;
     }[];
+    menuNavbarSignUp?:{
+        name:String;
+        rute:String;
+    }[];
     menuNavbarEncuesta?:{
         name:String;
         rute:String;
     }[];
 }
 
-const MyNavbar: FC<menuNavbar>  = ({menuNavbarAdmin, menuNavbarHome, menuNavbarEncuesta}) => {
+const MyNavbar: FC<menuNavbar>  = ({menuNavbarAdmin, menuNavbarHome, menuNavbarSignUp, menuNavbarEncuesta}) => {
     return(
         <>
             {(menuNavbarAdmin) && (
@@ -50,6 +54,26 @@ const MyNavbar: FC<menuNavbar>  = ({menuNavbarAdmin, menuNavbarHome, menuNavbarE
                             />
                         </Navbar.Brand>
                         <Navbar.Brand href="">SurveyCado</Navbar.Brand>
+                        <Nav>
+                            <Nav.Link as={Link} key={"#" + '/'} to={'/signup'}>Registrarse</Nav.Link>
+                        </Nav>
+                </Navbar>
+            )}
+            {(menuNavbarSignUp) && (
+                <Navbar bg="dark" variant="dark">
+                        <Navbar.Brand>
+                            <img
+                            alt=""
+                            src={logo}
+                            width="100"
+                            height="90"
+                            className="d-inline-block align-top"
+                            />
+                        </Navbar.Brand>
+                        <Navbar.Brand href="">SurveyCado</Navbar.Brand>
+                        <Nav>
+                            <Nav.Link as={Link} key={"#" + '/'} to={'/'}>Iniciar Sesión</Nav.Link>
+                        </Nav>
                 </Navbar>
             )}
             {(menuNavbarEncuesta) && (

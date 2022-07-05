@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Administrador from './containers/Administrador';
 import Encuesta from './containers/Encuesta';
 import Home from './containers/Home';
+import SignUp from './containers/SignUp';
 
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
       <Router>
         <Routes>
             <Route exact path="/" element={<Home/>}></Route>
+            <Route exact path="/signup" element={<SignUp/>}></Route>
             <Route path="/admin/:idEd" element={<Administrador/>}></Route>
             <Route path="/encuesta/:id" element={<Encuesta/>}></Route>
         </Routes>

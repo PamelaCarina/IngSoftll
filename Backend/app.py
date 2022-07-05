@@ -63,7 +63,7 @@ class Editor(db.Model): #CLASE EDITOR
     id_editor = db.Column(db.Integer, primary_key=True)
     username_editor = db.Column(db.String(30), unique=True)
     correo_editor = db.Column(db.String(30), unique=True)
-    password = db.Column(db.String(30), unique=True)
+    password = db.Column(db.String(30))
     encuestas = db.relationship('Encuesta', backref='editor')
 
     def __init__(self, id_editor, username_editor, correo_editor, password):
@@ -237,18 +237,25 @@ def login():
 
 
 @app.route("/signup",methods=['GET','POST']) #cambiar? para sprint 3
-def signup(correo,nombre,password):
-    if request.method=='POST':
-        exists_c=db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
-        if exists_c is True:
-            return 'Correo ya registrado'
-        exists_u=db.session.query(db.exists().where(Editor.nombre==nombre)).scalar()
+def signup():
+#def signup(username,correo,password):
+    if request.method == 'POST':
+        data = request.get_json()
+        username=data['username']
+        correo = data['correo']
+        password = data['password']
+        exists_u = db.session.query(db.exists().where(Editor.username_editor == username)).scalar()
         if exists_u is True:
             return 'Nombre ya registrado'
-        editor=Editor(correo_editor=correo,
-        nombre=nombre,
-        password=password)
-        #db.session.add(ce)
+        exists_c = db.session.query(db.exists().where(Editor.correo_editor==correo)).scalar()
+        if exists_c is True:
+            return 'Correo ya registrado'
+        if db.session.query(func.max(Editor.id_editor)).scalar() == None:
+            id_editor = 1
+        else:
+            id_editor = db.session.query(func.max(Editor.id_editor)).scalar() + 1
+        editor = Editor(id_editor=id_editor,correo_editor=correo,username_editor=username,password=password)
+        db.session.add(editor)
         db.session.commit()
         return 'Registrado exitosamente'
 
