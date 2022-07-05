@@ -51,6 +51,7 @@ class Encuestado(db.Model):  # CLASE ENCUESTADO
 
 
 class Tag(db.Model): #CLASE TAG
+    id_tag = db.Column(db.Integer, unique=True)
     tag = db.Column(db.String(20), primary_key=True)
     encuestas = db.relationship('Encuesta', secondary=Tag_encuesta, backref=db.backref('Tags_backref'), lazy = 'dynamic')
 
@@ -128,10 +129,10 @@ editor_schema = EditorSchema(many=True)
 
 class TagSchema(ma.Schema):
     class Meta:
-        attribute = 'tag'
+        fields = ('id_tag', 'tag')
 
 tag_schema = TagSchema()
-tag_schema = TagSchema(many=True)
+tags_schema = TagSchema(many=True, only=['tag'])
 
 
 class EncuestadoSchema(ma.Schema):
@@ -259,6 +260,11 @@ def getUser(idEd):
     result = editor_schema.dump(editor)
     return jsonify(result)
 
+@app.route("/getTags",methods=['GET'])
+def getTags():
+    tags = db.session.query(Tag).all()
+    result = tags_schema.dump(tags)
+    return jsonify(result)
 
 #@app.route("/editEncuesta")
 
