@@ -30,7 +30,7 @@ ma = Marshmallow(app)
 
 ####### MODELOS Y SCHEMAS #######
 Tag_encuesta = db.Table('Tag_encuesta', #TABLA MANY TO MANY QUE RELACIONA A ENCUESTADO CON ENCUESTA
-    db.Column('tag', db.String(20), db.ForeignKey('tag.tag')),
+    db.Column('tag', db.String(30), db.ForeignKey('tag.tag')),
     db.Column('id_encuesta', db.Integer, db.ForeignKey('encuesta.id_encuesta'))
 )
 
@@ -53,7 +53,7 @@ class Encuestado(db.Model):  # CLASE ENCUESTADO
 
 class Tag(db.Model): #CLASE TAG
     id_tag = db.Column(db.Integer, unique=True)
-    tag = db.Column(db.String(20), primary_key=True)
+    tag = db.Column(db.String(30), primary_key=True)
     encuestas = db.relationship('Encuesta', secondary=Tag_encuesta, backref=db.backref('Tags_backref'), lazy = 'dynamic')
 
     def __init__(self, tag):
@@ -237,7 +237,7 @@ def login():
             return 'Correo o contraseña incorrectos'
 
 
-@app.route("/signup",methods=['GET','POST']) #cambiar? para sprint 3
+@app.route("/signup", methods=['POST'])
 def signup():
 #def signup(username,correo,password):
     if request.method == 'POST':
@@ -356,7 +356,7 @@ def deleteEncuesta(idE):
     db.session.commit()
     Encuesta.query.filter(Encuesta.id_encuesta == idE).delete()
     db.session.commit()
-    return 'lol'
+    return 'eliminada'
 
 
 @app.route("/listadoEncuestas/<idEditor>", methods=['GET'])
@@ -370,12 +370,13 @@ def listaEncuestas(idEditor):
 def showEncuesta(idEncuesta):
     if request.method == 'GET':
         encuesta = db.session.query(Encuesta).where(Encuesta.id_encuesta == idEncuesta)
+        tag = db.session.query(Tag_encuesta.c.tag).filter(Tag_encuesta.c.id_encuesta == idEncuesta).first()
         preguntas = db.session.query(Pregunta).where(Pregunta.id_encuesta == idEncuesta)
         alternativas = db.session.query(Alternativa).join(Pregunta).where(Alternativa.id_pregunta == Pregunta.id_pregunta and Pregunta.id_encuesta == idEncuesta).all()
         resultE = encuesta_schema.dump(encuesta)
         resultP = pregunta_schema.dump(preguntas)
         resultA = alternativa_schema.dump(alternativas)
-        return jsonify(resultE, resultP, resultA)
+        return jsonify(resultE, resultP, resultA, tag[0])
 
 
 @app.route("/saveEncuesta", methods=['POST'])
@@ -444,8 +445,8 @@ def saveEncuesta():
             max_id_pregunta += 1
         #Se guardan los cambios realizados en la BD
         db.session.commit()
-        db.engine.execute(Tag_encuesta.insert(),tag=tag_encuesta, id_encuesta=id_encuesta)
-        return "ok"
+        db.engine.execute(Tag_encuesta.insert(), tag=tag_encuesta, id_encuesta=id_encuesta)
+        return "creada correctamente"
 
 
 '''@app.route("/viewCorreos/",methods=['GET','POST']) #POST es para editar correo

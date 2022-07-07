@@ -25,8 +25,8 @@ export default function Login() {
     //DEPLOYMENT POST
         //axios.post('http://152.74.52.191:5009/signup', {username,correo,password} )
       .then(res => {
-        console.log(res);
-        console.log(res.statusText);
+        //console.log(res);
+        //console.log(res.statusText);
         if(res.data === 'Nombre ya registrado'){
           swal("Incorrecto", "Ya existe un usuario con este nombre", "error")
         }
@@ -34,7 +34,7 @@ export default function Login() {
           swal("Incorrecto", "Ya existe un usuario con este correo", "error")
         }
         else{
-          console.log('ELSE');
+          //console.log('ELSE');
           swal('Registrado correctamente','','success')
           navigate('/');
         }

@@ -27,7 +27,7 @@ const Administrador = () => {
         axios.get(`${urlE}`).then(response => {
             //console.log(response.data[0].correo_editor)
             setUser(response.data[0].username_editor)
-            console.log(user)
+            //console.log(user)
         }).catch(err => console.log(err))
     })
     return (

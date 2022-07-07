@@ -5,16 +5,17 @@ import ListGroup from "react-bootstrap/ListGroup";
 import Button from 'react-bootstrap/Button'
 import ModalEnviarCorreo from '../../components/ModalEnviarCorreo';
 import {Card, ListGroupItem, ButtonGroup} from "react-bootstrap";
+//import ModalEditarEncuesta from "../ModalEditarEncuesta";
 
 const ListaEncuestas = () => {
     const [encuestas, setEncuestas] = useState([]);
     const idE = useParams();
     //DEVELOPMENT URL
-    //const urlList = `http://localhost:5000/listadoEncuestas/${idE.idEd}`;
-    //const urlDel = `http://localhost:5000/deleteEncuesta/`;
+    const urlList = `http://localhost:5000/listadoEncuestas/${idE.idEd}`;
+    const urlDel = `http://localhost:5000/deleteEncuesta/`;
     //DEPLOYMENT URL 152.74.52.191
-    const urlList = `http://152.74.52.191:5009/listadoEncuestas/${idE.idEd}`;
-    const urlDel = `http://152.74.52.191:5009/deleteEncuesta/`;
+    //const urlList = `http://152.74.52.191:5009/listadoEncuestas/${idE.idEd}`;
+    //const urlDel = `http://152.74.52.191:5009/deleteEncuesta/`;
     useEffect(() => {
         axios.get(`${urlList}`).then(response => {
             setEncuestas(response.data)

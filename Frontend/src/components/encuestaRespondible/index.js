@@ -11,23 +11,26 @@ import {useNavigate, useParams} from 'react-router-dom'
 const EncuestaRespondible = () => {
     const [correos,setCorreos] = useState([]);
     const [encuesta, setEncuesta] = useState([]);
+    const [tag, setTag] = useState('')
     const [correo, setCorreo] = useState('');
     const [preguntas, setPreguntas] = useState([]);
     const [alternativas, setAlternativas] = useState([]);
     const [act, setAct] = useState(new Map());
     const id = useParams();
     //DEVELOPMENT URL
-    //const urlS = `http://localhost:5009/showEncuesta/${id.id}`;
-    //const urlA = `http://localhost:5009/saveRespuestas`;
+    const urlS = `http://localhost:5000/showEncuesta/${id.id}`;
+    const urlA = `http://localhost:5000/saveRespuestas`;
     //DEPLOYMENT URL
-    const urlS = `http://152.74.52.191:5009/showEncuesta/${id.id}`;
-    const urlA = `http://152.74.52.191:5009/saveRespuestas`;
+    //const urlS = `http://152.74.52.191:5009/showEncuesta/${id.id}`;
+    //const urlA = `http://152.74.52.191:5009/saveRespuestas`;
 
     useEffect(() => {
         axios.get(`${urlS}`).then(response => {
             setEncuesta(response.data[0])
             setPreguntas(response.data[1])
             setAlternativas(response.data[2])
+            setTag(response.data[3])
+            //console.log()
         }).catch(err => console.log(err))
     }, [])
 
@@ -99,7 +102,7 @@ const EncuestaRespondible = () => {
 
     const handleCorreo = (event) => {
         setCorreo(event.target.value)
-        console.log(event.target.value)
+        //console.log(event.target.value)
     }
 
     const arr = encuesta.map(encuesta => {
@@ -154,6 +157,7 @@ const EncuestaRespondible = () => {
             <Card className='justify-content-md-center'>
                 <Card.Header>
                     <Card.Title>{titulo}</Card.Title>
+                    <Card.Text style={{fontWeight:'bold'}}>Etiqueta: <span style={{fontWeight:'normal'}}>{tag}</span> </Card.Text>
                     <Card.Text>{descripcion}</Card.Text>
                 </Card.Header>
                 <Card.Body>

@@ -20,17 +20,17 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     //DEVELOPMENT POST
-    //axios.post('http://localhost:5009/login', {correo,password} )
+    axios.post('http://localhost:5000/login', {correo,password} )
     //DEPLOYMENT POST
-    axios.post('http://152.74.52.191:5009/login', {correo,password} )
+    //axios.post('http://152.74.52.191:5009/login', {correo,password} )
       .then(res => {
-        console.log(res);
-        console.log(res.statusText);
+        //console.log(res);
+        //console.log(res.statusText);
         if(res.data=='Correo o contraseña incorrectos'){
           swal("Incorrecto", "Arriba las manos usurpador de identidades", "error")
         }
         else{
-          console.log('ELSE');
+          //console.log('ELSE');
           navigate(`/admin/${res.data[0]}`);
         }
       })
