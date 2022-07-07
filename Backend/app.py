@@ -272,9 +272,74 @@ def getTags():
     result = tags_schema.dump(tags)
     return jsonify(result)
 
-@app.route("/editEncuesta")
-def editEncuesta():
-    return
+@app.route("/editEncuesta/<idE>", methods=["POST"])
+def editEncuesta(idE):
+    #DELETE ENCUESTA
+    result = deleteEncuesta(idE)
+
+    #CREA UNA NUEVA ENCUESTA CON EL MISMO ID
+    # Extraigo el JSON de la request
+    abc = request.get_json()
+    data = json.dumps(abc['dict'])
+    data = json.loads(data)
+    # Se obtienen los id máximos de las encuestas, preguntas y alternativas
+    id_encuesta = idE
+
+    if db.session.query(func.max(Pregunta.id_pregunta)).scalar() == None:
+        max_id_pregunta = 1
+    else:
+        max_id_pregunta = db.session.query(func.max(Pregunta.id_pregunta)).scalar() + 1
+
+    if db.session.query(func.max(Alternativa.id_alternativa)).scalar() == None:
+        max_id_alternativa = 1
+    else:
+        max_id_alternativa = db.session.query(func.max(Alternativa.id_alternativa)).scalar() + 1
+
+    # Se extraen los datos de la encuesta
+    for element in data:
+        for att, value in element.items():
+            if att == 'idEditor':
+                id_editor = value
+            if att == 'titulo_encuesta':
+                titulo_encuesta = value
+            if att == 'descripcion_encuesta':
+                descripcion_encuesta = value
+            if att == 'tag_encuesta':
+                tag_encuesta = value
+            if att == 'preguntas':
+                preguntas = value
+
+    # Se crea una nueva encuesta
+    fecha_creacion = datetime.datetime.now().date()
+    new_encuesta = Encuesta(id_encuesta, id_editor, titulo_encuesta, descripcion_encuesta, fecha_creacion)
+    # Se añade el objeto encuesta a la BD
+    db.session.add(new_encuesta)
+    # Se itera por la preguntas
+    for p in preguntas:
+        # Se extraen los datos de las preguntas
+        for att, value in p.items():
+            if att == 'enunciado_pregunta':
+                enunciado_pregunta = value
+                # Se crea la nueva pregunta y se almacena
+                new_pregunta = Pregunta(max_id_pregunta, id_encuesta, enunciado_pregunta)
+                db.session.add(new_pregunta)
+            if att == 'alternativas':
+                alternativas = value
+                # Se itera por las alternativas de una pregunta
+                for a in alternativas:
+                    # Se extraen los datos de las alternativas
+                    for att, value in a.items():
+                        if att == 'enunciado_alternativa':
+                            enunciado_alternativa = value
+                            # Se crea la nueva alternativa y se almacena
+                            new_alternativa = Alternativa(max_id_alternativa, max_id_pregunta, enunciado_alternativa, 0)
+                            db.session.add(new_alternativa)
+                            max_id_alternativa += 1
+        max_id_pregunta += 1
+    # Se guardan los cambios realizados en la BD
+    db.session.commit()
+    db.engine.execute(Tag_encuesta.insert(), tag=tag_encuesta, id_encuesta=id_encuesta)
+    return 'editado'
 
 @app.route("/deleteEncuesta/<idE>", methods=['DELETE'])
 def deleteEncuesta(idE):
@@ -286,6 +351,8 @@ def deleteEncuesta(idE):
         #    print("***********")
         db.session.delete(p)
     db.session.query(Contesta_encuesta).filter(Contesta_encuesta.c.id_encuesta==idE).delete()
+    db.session.commit()
+    db.session.query(Tag_encuesta).filter(Tag_encuesta.c.id_encuesta == idE).delete()
     db.session.commit()
     Encuesta.query.filter(Encuesta.id_encuesta == idE).delete()
     db.session.commit()
