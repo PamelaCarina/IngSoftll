@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { useParams, useNavigate} from 'react-router-dom'
 import axios from 'axios'
+import swal from "sweetalert";
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from 'react-bootstrap/Button'
 import ModalEnviarCorreo from '../../components/ModalEnviarCorreo';
@@ -29,7 +30,10 @@ const ListaEncuestas = () => {
 
     const deleteEncuesta = (idE) => {
         //console.log(idE)
-        axios.delete(`${urlDel}${idE}`);
+        axios.delete(`${urlDel}${idE}`)
+            .then(res =>{
+                swal('Correcto!','Encuesta eliminada correctamente','success')
+            });
         refresh();
     }
 
@@ -41,7 +45,7 @@ const ListaEncuestas = () => {
         return (
             <Card className="mb-3">
                 <ListGroup.Item variant="dark" className="d-flex align-items-center justify-content-between ">
-                    {titulo}
+                    <span style={{fontWeight:'bold'}}>{titulo}</span>
                     <ButtonGroup className="d-flex justify-content-end">
                         <ModalEnviarCorreo titulo= {titulo} idEncuesta = {id_enc}> </ModalEnviarCorreo>
                         <Button variant="danger" onClick={deleteEncuesta.bind(this, id_enc)}>Eliminar</Button>{' '}
