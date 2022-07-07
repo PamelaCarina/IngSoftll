@@ -3,6 +3,7 @@ import json
 
 from flask import Flask, jsonify, request, Response
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import exists
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_mail import Mail, Message
@@ -216,22 +217,22 @@ def login():
     correo=data['correo']
     password=data['password']
     if request.method=='POST':
-        editor = db.session.query(Editor).where(Editor.correo_editor == correo)
-        editorDump = editor_schema.dump(editor)
-
-        for data in editorDump:
-            for [key, value] in data.items():
-                if(key == 'password'):
-                    password_editor = value
-
-                elif(key == 'correo_editor'):
-                    mail_editor = value
-
-                elif(key == 'id_editor'):
-                    id_Editor = value
-
-        if editorDump is not None and password_editor==password:
-            return jsonify([id_Editor, mail_editor, password_editor])
+        existe = db.session.query(exists().where(Editor.correo_editor == correo)).scalar()
+        if existe:
+            editor = db.session.query(Editor).where(Editor.correo_editor == correo)
+            editorDump = editor_schema.dump(editor)
+            for data in editorDump:
+                for [key, value] in data.items():
+                    if(key == 'password'):
+                        password_editor = value
+                    elif(key == 'correo_editor'):
+                        mail_editor = value
+                    elif(key == 'id_editor'):
+                        id_Editor = value
+            if password_editor == password:
+                return jsonify([id_Editor, mail_editor, password_editor])
+            else:
+                return 'Correo o contraseña incorrectos'
         else:
             return 'Correo o contraseña incorrectos'
 
