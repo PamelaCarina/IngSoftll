@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { useParams} from 'react-router-dom'
 import {Modal, Button, InputGroup, Form} from 'react-bootstrap'
 import CardPregunta from '../../components/CardPregunta';
@@ -18,6 +18,7 @@ const ModalAgregarEncuesta = () => {
   const [cardList, setCardList] = useState([]);
   const [id_pregunta, setId_Pregunta] = useState(1);
   const [inputs, setInputs] = useState({});
+  const [tags, setTags] = useState([]);
 
   const onAddCardClick = () => {
     if(cardList.length < 10){
@@ -28,6 +29,18 @@ const ModalAgregarEncuesta = () => {
       swal("Alto!", "No puedes añadir más preguntas, eso va contra la ley", "error")
     }
   }
+  useEffect(() => {
+        axios.get(`http://localhost:5000/getTags`).then(response => {
+            setTags(response.data)
+            console.log(response.data)
+        }).catch(err => console.log(err))
+    }, [])
+
+  const etiquetas = tags.map(tagcito => {
+    const nombre = tagcito.tag
+    return(
+      <option value={nombre}> {nombre} </option>);
+  })
 
   const vaciarCardListGuardar = (event) => {
     console.log("length",cardList.length);
@@ -66,6 +79,7 @@ const ModalAgregarEncuesta = () => {
     const name = event.target.name;
     const value = event.target.value;
     setInputs(values => ({...values, [name]: value}))
+    console.log(name,value);
   }
 
   const handleSubmit = (event) => {
@@ -98,11 +112,11 @@ const ModalAgregarEncuesta = () => {
           descripcion_encuesta: value
         });
       }
-      /*if(key === 'tag_encuesta'){
+      if(key === 'tag_encuesta'){
         dict.push({
           tag_encuesta: value
         });
-      }*/
+      }
       if(key === `pregunta ${iterP}`){
         for(let [keyA,valueA] of Object.entries(inputs)){
           if(keyA === `alternativa ${iterA}_${iterP}`){
@@ -134,9 +148,9 @@ const ModalAgregarEncuesta = () => {
       }
     }
     //DEVELOPMENT POST
-    //axios.post('http://localhost:5009/saveEncuesta', {dict} )
+    axios.post('http://localhost:5000/saveEncuesta', {dict} )
     //DEPLOYMENT POST
-    axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
+    //axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
        .then(res => {
          console.log(res);
          alert("Enviado Correctamente")
@@ -197,6 +211,12 @@ const ModalAgregarEncuesta = () => {
                   autoFocus
                   onChange={handleChange}/>
               </InputGroup>
+              <Form.Group>
+                <Form.Label>Seleccione Etiqueta</Form.Label>
+                <Form.Select name="tag_encuesta" onChange={handleChange}>
+                  {etiquetas}
+                </Form.Select>
+              </Form.Group>
               {cardList}
               <Button variant="info" onClick={() => {
                 onAddCardClick();
