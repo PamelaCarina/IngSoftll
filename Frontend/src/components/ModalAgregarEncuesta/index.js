@@ -30,7 +30,10 @@ const ModalAgregarEncuesta = () => {
     }
   }
   useEffect(() => {
-        axios.get(`http://localhost:5000/getTags`).then(response => {
+      //DEVELOPMENT URL
+      //axios.get(`http://localhost:5000/getTags`).then(response => {
+      //DEPLOYMENT URL
+      axios.get(`http://152.74.52.191:5009/getTags`).then(response => {
             setTags(response.data)
             console.log(response.data)
         }).catch(err => console.log(err))
@@ -148,9 +151,9 @@ const ModalAgregarEncuesta = () => {
       }
     }
     //DEVELOPMENT POST
-    axios.post('http://localhost:5000/saveEncuesta', {dict} )
+    //axios.post('http://localhost:5000/saveEncuesta', {dict} )
     //DEPLOYMENT POST
-    //axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
+    axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
        .then(res => {
          //console.log(res);
          swal("Correcto!",'Encuesta guardada satisfactoriamente','success')

@@ -21,9 +21,9 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     //DEVELOPMENT POST
-    axios.post('http://localhost:5000/signup', {username,correo,password} )
+    //axios.post('http://localhost:5000/signup', {username,correo,password} )
     //DEPLOYMENT POST
-        //axios.post('http://152.74.52.191:5009/signup', {username,correo,password} )
+    axios.post('http://152.74.52.191:5009/signup', {username,correo,password} )
       .then(res => {
         //console.log(res);
         //console.log(res.statusText);

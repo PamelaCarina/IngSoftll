@@ -18,9 +18,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 app = Flask(__name__)
 cors = CORS(app)
 #DEVELOPMENT DATABASE
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/is2flask'
 #DEPLOYMENT DATABASE
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://equipo9:brsqlg@localhost/equipo9'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://equipo9:brsqlg@localhost/equipo9'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -52,8 +52,12 @@ class Encuestado(db.Model):  # CLASE ENCUESTADO
     encuestas = db.relationship('Encuesta', secondary=Contesta_encuesta, backref=db.backref('Encuestados_backref'),
                                 lazy='dynamic')
 
-    def __init__(self, correo_encuestado):
+    def __init__(self, correo_encuestado, hash_encuestado, suscrito, tiempo_resuscripcion):
         self.correo_encuestado = correo_encuestado
+        self.hash_encuestado = hash_encuestado
+        self.suscrito = suscrito
+        self.tiempo_resuscripcion = tiempo_resuscripcion
+
 
 
 class Tag(db.Model): #CLASE TAG
@@ -189,20 +193,32 @@ def saveRespuestas():
     exists = db.session.query(db.exists().where(Encuestado.correo_encuestado == correo)).scalar()
     encuesta = db.session.query(Encuesta).filter(Encuesta.id_encuesta == id).first()
     if exists is False:  # si es un correo nuevo, se añade
-        encuestado = Encuestado(correo_encuestado=correo)
-        encuestado.encuestas.append(encuesta)
+        #hash_encuestado = ''
+        while True:
+            print('hola')
+            hash_encuestado = str(hash(correo))  # da valores aleatorios, por eso se usa while
+            if '-' in hash_encuestado:
+                hash_encuestado = hash_encuestado[1:]
+            exists = db.session.query(db.exists().where(Encuestado.hash_encuestado == hash_encuestado)).scalar()
+            if exists is False:
+                break
+        print(hash_encuestado)
+        encuestado = Encuestado(correo_encuestado=correo,
+                                hash_encuestado=hash_encuestado,
+                                suscrito=True,
+                                tiempo_resuscripcion=0)
+        # encuestado.encuestas.append(encuesta)
         db.session.add(encuestado)
+        db.session.commit()
+    encuestado = db.session.query(Encuestado).filter(Encuestado.correo_encuestado == correo).first()
+    contestada = False
+    for enc in encuestado.encuestas:
+        if(enc.id_encuesta == id):
+            contestada = True
+    if contestada is True:
+        return Response("Ya ha contestado esta encuesta", status=400)
     else:
-        encuestado = db.session.query(Encuestado).filter(Encuestado.correo_encuestado == correo).first()
-        contestada = False
-        for enc in encuestado.encuestas:
-            if(enc.id_encuesta == id):
-                contestada = True
-
-        if contestada is True:
-            return Response("Ya ha contestado esta encuesta", status=400)
-        else:
-            encuestado.encuestas.append(encuesta)
+        db.engine.execute(Contesta_encuesta.insert(), correo_encuestado=correo, id_encuesta=id, fecha_contestacion=datetime.datetime.now())
 
     #actualiza los contadores de alternativas
     for alts in data['dict']:
@@ -273,13 +289,22 @@ def unsuscribe(hash_encuestado):
         if encuestado is not None:
             tiempo_resuscripcion=request.get_json()
             if tiempo_resuscripcion["tiempo_resuscripcion"] == "semana":
-                encuestado.tiempo_resuscripcion=3
+                encuestado.tiempo_resuscripcion= 7
+            elif tiempo_resuscripcion["tiempo_resuscripcion"] == "mes":
+                encuestado.tiempo_resuscripcion = 30
+            elif tiempo_resuscripcion["tiempo_resuscripcion"] == "año":
+                encuestado.tiempo_resuscripcion = 365
+            if tiempo_resuscripcion["tiempo_resuscripcion"] == "permanente":
+                encuestado.tiempo_resuscripcion = -1
             encuestado.suscrito = False
             db.session.add(encuestado)
             db.session.commit()
             #envia correo de confirmacion
             with mail.connect() as conn:
-                suslink="http://surveycado.com/resuscribe/"+encuestado.hash_encuestado
+                #DEVELOPMENT
+                #suslink="http://localhost:3000/resuscribe/"+encuestado.hash_encuestado
+                #DEPLOYMENT
+                suslink = "http://152.74.52.191:3000/resuscribe/" + encuestado.hash_encuestado
                 msg=Message('Cancelación de suscripción', sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(encuestado.correo_encuestado)])
                 msg.body="Se ha desuscrito exitosamente.\nSi desea volver a suscribirse, haga click en el siguiente link "+suslink
                 mail.send(msg)
@@ -295,6 +320,7 @@ def resuscribe(hash_encuestado): #por alguna razon backend llama 2 veces
     print(encuestado)
     if encuestado is not None and encuestado.suscrito is False:
         encuestado.suscrito = True
+        encuestado.tiempo_resuscripcion = 0
         db.session.add(encuestado)
         db.session.commit()
         #envia correo de confirmacion
@@ -509,8 +535,8 @@ def viewCorreos():
 
 @app.route("/viewCorreos/",methods=['GET'])
 def viewCorreos():
-    correos=Encuestado.query.filter_by(suscrito = True).with_entities(Encuestado.correo_encuestado).all()
-    correos=[tuple(row) for row in correos]
+    correos=Encuestado.query.with_entities(Encuestado.correo_encuestado).all()
+    correos=[tuple(row)[0] for row in correos]
     #return Response(json.dumps(correos), mimetype='application/json')
     return jsonify(correos)
 
@@ -546,19 +572,37 @@ def sendCorreos():
     id_encuesta = request.get_json()
 
     #DEVELOPMENT URL
-    surveylink="http://localhost:3000/encuesta/"+str(id_encuesta["idEncuesta"])
+    #surveylink="http://localhost:3000/encuesta/"+str(id_encuesta["idEncuesta"])
     #DEPLOYMENT URL
-    #surveylink = "http://152.74.52.191:3000/encuesta/" + str(id_encuesta["idEncuesta"])
+    surveylink = "http://152.74.52.191:3000/encuesta/" + str(id_encuesta["idEncuesta"])
     titulo=(Encuesta.query.get(id_encuesta["idEncuesta"])).titulo_encuesta
     users=Encuestado.query.filter_by(suscrito = True).with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
         for user in users:
             encuestado=Encuestado.query.get_or_404(user)
-            deletelink="http://surveycado.com/unsuscribe/"+encuestado.hash_encuestado
+            #DEVELOPMENT URL
+            #deletelink="http://localhost:3000/unsuscribe/"+encuestado.hash_encuestado
+            #DEPLOYMENT URL
+            deletelink="http://152.74.52.191:3000/unsuscribe/"+encuestado.hash_encuestado
             msg=Message('Encuesta Surveycado🥑: '+titulo, sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(user)])
             msg.body="Link a encuesta "+surveylink+"\n\nSi desea dejar de recibir estos correos, haga click en el siguiente link "+deletelink
             mail.send(msg)
     return "Mensajes enviados."
+
+@app.route("/listaTags/",methods=['GET'])
+def listaTags():
+    lista_tags=Tag.query.with_entities(Tag.tag).all()
+    lista_tags=[tuple(row)[0] for row in lista_tags]
+    return jsonify(lista_tags)
+
+@app.route("/tagsEncuestados/<tag>",methods=['GET'])
+def tagsEncuestados(tag):
+    result = db.session.execute('''SELECT c.correo_encuestado, t.tag FROM contesta_encuesta 
+    AS c INNER JOIN encuesta AS e ON c.id_encuesta = e.id_encuesta JOIN tag_encuesta 
+    AS t ON e.id_encuesta = t.id_encuesta 
+    WHERE t.tag = :tag''', {"tag": tag})
+    correos = list(map(lambda r : r[0], result)) #lambda es f anon, toma cada alemento del arreglo del elemento result
+    return jsonify(correos)
 
 #chequea el tiempo de resuscripcion para cada encuestado que haya desactivado la suscripcion
 def check_subscription():
@@ -569,6 +613,8 @@ def check_subscription():
         for encuestado in encuestados:
             if encuestado.tiempo_resuscripcion > 1:
                 encuestado.tiempo_resuscripcion=encuestado.tiempo_resuscripcion-1
+            elif encuestado.tiempo_resuscripcion == -1:
+                continue
             else:
                 encuestado.tiempo_resuscripcion=0
                 encuestado.suscrito=True
@@ -578,7 +624,6 @@ def check_subscription():
                     mail.send(msg)
             db.session.add(encuestado)
         db.session.commit()
-
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=check_subscription, trigger="interval", seconds=60) #cada 1 dia

@@ -18,11 +18,11 @@ const EncuestaRespondible = () => {
     const [act, setAct] = useState(new Map());
     const id = useParams();
     //DEVELOPMENT URL
-    const urlS = `http://localhost:5000/showEncuesta/${id.id}`;
-    const urlA = `http://localhost:5000/saveRespuestas`;
+    //const urlS = `http://localhost:5000/showEncuesta/${id.id}`;
+    //const urlA = `http://localhost:5000/saveRespuestas`;
     //DEPLOYMENT URL
-    //const urlS = `http://152.74.52.191:5009/showEncuesta/${id.id}`;
-    //const urlA = `http://152.74.52.191:5009/saveRespuestas`;
+    const urlS = `http://152.74.52.191:5009/showEncuesta/${id.id}`;
+    const urlA = `http://152.74.52.191:5009/saveRespuestas`;
 
     useEffect(() => {
         axios.get(`${urlS}`).then(response => {
@@ -157,8 +157,8 @@ const EncuestaRespondible = () => {
             <Card className='justify-content-md-center'>
                 <Card.Header>
                     <Card.Title>{titulo}</Card.Title>
-                    <Card.Text style={{fontWeight:'bold'}}>Etiqueta: <span style={{fontWeight:'normal'}}>{tag}</span> </Card.Text>
                     <Card.Text>{descripcion}</Card.Text>
+                    <Card.Text style={{fontWeight:'bold'}}>Etiqueta: <span style={{fontWeight:'normal'}}>{tag}</span> </Card.Text>
                 </Card.Header>
                 <Card.Body>
                     <Card className="mb-3">

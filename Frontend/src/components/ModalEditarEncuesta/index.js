@@ -39,11 +39,17 @@ const ModalEditarEncuesta: FC<props> = ({idEncuesta}) => {
     }
   }
   useEffect(() => {
-        axios.get(`http://localhost:5000/getTags`).then(response => {
+    //DEVELOPMENT
+    //    axios.get(`http://localhost:5000/getTags`).then(response => {
+    //DEPLOYMENT
+    axios.get(`http://152.74.52.191:5009/getTags`).then(response => {
             setTags(response.data)
             console.log(response.data)
         }).catch(err => console.log(err))
-        axios.get(`http://localhost:5000/showEncuesta/${idEncuesta}`).then(response => {
+    //DEVELOPMENT
+    //    axios.get(`http://localhost:5000/showEncuesta/${idEncuesta}`).then(response => {
+    //DEPLOYMENT
+          axios.get(`http://152.74.52.191:5009/showEncuesta/${idEncuesta}`).then(response => {
             setEncuesta(response.data[0])
             setPreguntas(response.data[1])
             setAlternativas(response.data[2])
@@ -53,7 +59,8 @@ const ModalEditarEncuesta: FC<props> = ({idEncuesta}) => {
             //setInputs(values => ({...values, tag_encuesta: tag}))
             //console.log(response.data[0][0].titulo_encuesta)
             //console.log(inputs)
-        }).catch(err => console.log(err))
+          }).catch(err => console.log(err))
+        }
         
         
     }, [])
@@ -173,9 +180,9 @@ const ModalEditarEncuesta: FC<props> = ({idEncuesta}) => {
       }
     }
     //DEVELOPMENT POST
-    axios.post(`http://localhost:5000/editEncuesta/${idEncuesta}`, {dict} )
+    //axios.post(`http://localhost:5000/editEncuesta/${idEncuesta}`, {dict} )
     //DEPLOYMENT POST
-    //axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
+    axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
        .then(res => {
          console.log(res);
          alert("Enviado Correctamente")
