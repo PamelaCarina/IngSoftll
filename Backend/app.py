@@ -11,6 +11,10 @@ from flask_mail import Mail, Message
 ####### APP CONFIG (APP, DB, MAIL) #######
 from sqlalchemy import func, engine
 
+import time
+import atexit
+from apscheduler.schedulers.background import BackgroundScheduler
+
 app = Flask(__name__)
 cors = CORS(app)
 #DEVELOPMENT DATABASE
@@ -261,6 +265,49 @@ def signup():
         db.session.commit()
         return 'Registrado exitosamente'
 
+@app.route("/unsuscribe/<int:hash_encuestado>",methods=['GET','POST'])
+def unsuscribe(hash_encuestado):
+    if request.method=='POST':
+        print(hash_encuestado)
+        encuestado = db.session.query(Encuestado).filter_by(hash_encuestado = str(hash_encuestado)).first()
+        if encuestado is not None:
+            tiempo_resuscripcion=request.get_json()
+            if tiempo_resuscripcion["tiempo_resuscripcion"] == "semana":
+                encuestado.tiempo_resuscripcion=3
+            encuestado.suscrito = False
+            db.session.add(encuestado)
+            db.session.commit()
+            #envia correo de confirmacion
+            with mail.connect() as conn:
+                suslink="http://surveycado.com/resuscribe/"+encuestado.hash_encuestado
+                msg=Message('Cancelación de suscripción', sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(encuestado.correo_encuestado)])
+                msg.body="Se ha desuscrito exitosamente.\nSi desea volver a suscribirse, haga click en el siguiente link "+suslink
+                mail.send(msg)
+            print(tiempo_resuscripcion)
+            return 'Desuscrito exitosamente'
+        else:
+            return 'Usuario no existe'
+
+
+@app.route("/resuscribe/<int:hash_encuestado>",methods=['GET'])
+def resuscribe(hash_encuestado): #por alguna razon backend llama 2 veces
+    encuestado = db.session.query(Encuestado).filter_by(hash_encuestado = str(hash_encuestado)).first()
+    print(encuestado)
+    if encuestado is not None and encuestado.suscrito is False:
+        encuestado.suscrito = True
+        db.session.add(encuestado)
+        db.session.commit()
+        #envia correo de confirmacion
+        with mail.connect() as conn:
+            msg=Message('Suscripción exitosa', sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(encuestado.correo_encuestado)])
+            msg.body="Se ha suscrito exitosamente."
+            mail.send(msg)
+        return 'Suscrito exitosamente'
+    elif encuestado.suscrito is True:
+        return 'Usuario ya está suscrito'
+    else:
+        return 'Usuario no existe'
+
 @app.route("/getUser/<idEd>", methods=['GET'])
 def getUser(idEd):
     editor = db.session.query(Editor).where(Editor.id_editor == idEd)
@@ -462,7 +509,7 @@ def viewCorreos():
 
 @app.route("/viewCorreos/",methods=['GET'])
 def viewCorreos():
-    correos=Encuestado.query.with_entities(Encuestado.correo_encuestado).all()
+    correos=Encuestado.query.filter_by(suscrito = True).with_entities(Encuestado.correo_encuestado).all()
     correos=[tuple(row) for row in correos]
     #return Response(json.dumps(correos), mimetype='application/json')
     return jsonify(correos)
@@ -503,14 +550,40 @@ def sendCorreos():
     #DEPLOYMENT URL
     #surveylink = "http://152.74.52.191:3000/encuesta/" + str(id_encuesta["idEncuesta"])
     titulo=(Encuesta.query.get(id_encuesta["idEncuesta"])).titulo_encuesta
-    users=Encuestado.query.with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
+    users=Encuestado.query.filter_by(suscrito = True).with_entities(Encuestado.correo_encuestado).all() #recibir solo correos
     with mail.connect() as conn:
         for user in users:
+            encuestado=Encuestado.query.get_or_404(user)
+            deletelink="http://surveycado.com/unsuscribe/"+encuestado.hash_encuestado
             msg=Message('Encuesta Surveycado🥑: '+titulo, sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(user)])
-            msg.body="Link a encuesta "+surveylink
+            msg.body="Link a encuesta "+surveylink+"\n\nSi desea dejar de recibir estos correos, haga click en el siguiente link "+deletelink
             mail.send(msg)
     return "Mensajes enviados."
-    
+
+#chequea el tiempo de resuscripcion para cada encuestado que haya desactivado la suscripcion
+def check_subscription():
+    with app.app_context():
+        print("check")
+        encuestados = db.session.query(Encuestado).where(Encuestado.suscrito == False).all() #no se si funcionara
+        #se debe crear el atributo tiempo_resuscripcion, el cual es el tiempo en horas
+        for encuestado in encuestados:
+            if encuestado.tiempo_resuscripcion > 1:
+                encuestado.tiempo_resuscripcion=encuestado.tiempo_resuscripcion-1
+            else:
+                encuestado.tiempo_resuscripcion=0
+                encuestado.suscrito=True
+                with mail.connect() as conn:
+                    msg=Message('Suscripción exitosa', sender=("Surveycado 🥑",'surveycadocl@gmail.com'),recipients=[''.join(encuestado.correo_encuestado)])
+                    msg.body="Se ha suscrito exitosamente."
+                    mail.send(msg)
+            db.session.add(encuestado)
+        db.session.commit()
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=check_subscription, trigger="interval", seconds=60) #cada 1 dia
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5009)
