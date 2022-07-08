@@ -43,10 +43,10 @@ const ModalAgregarEncuesta = () => {
   })
 
   const vaciarCardListGuardar = (event) => {
-    console.log("length",cardList.length);
+    //console.log("length",cardList.length);
     for(let[key,value] in inputs){
       if(value.length===0){
-        console.log("primer if");
+        //console.log("primer if");
         event.preventDefault();
         return false;
       }
@@ -94,7 +94,7 @@ const ModalAgregarEncuesta = () => {
     if(!vaciarCardListGuardar())
       return
 
-    console.log(inputs)
+    //console.log(inputs)
     var dict = []
     var dictP = []
     var dictA = []
@@ -143,7 +143,7 @@ const ModalAgregarEncuesta = () => {
     //console.log(inputs.titulo_encuesta)
     for(let[key,value] in inputs){
       if(value.length===0){
-        console.log("primer if");
+        //console.log("primer if");
         event.preventDefault();
       }
     }
@@ -152,8 +152,8 @@ const ModalAgregarEncuesta = () => {
     //DEPLOYMENT POST
     //axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
        .then(res => {
-         console.log(res);
-         alert("Enviado Correctamente")
+         //console.log(res);
+         swal("Correcto!",'Encuesta guardada satisfactoriamente','success')
        })
      //handleClose(true);
 /*
@@ -218,9 +218,7 @@ const ModalAgregarEncuesta = () => {
                 </Form.Select>
               </Form.Group>
               {cardList}
-              <Button variant="info" onClick={() => {
-                onAddCardClick();
-              }}>Agregar Pregunta</Button>
+              <Button variant="info" onClick={onAddCardClick}>Agregar Pregunta</Button>
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={vaciarCardListCancelar}>Cancelar</Button>
