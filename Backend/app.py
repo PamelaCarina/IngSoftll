@@ -42,8 +42,9 @@ Contesta_encuesta = db.Table('Contesta_encuesta',  #TABLA MANY TO MANY QUE RELAC
 
 class Encuestado(db.Model):  # CLASE ENCUESTADO
     correo_encuestado = db.Column(db.String(40), primary_key=True)
-    hash_encuestado = db.Column(db.Integer)
+    hash_encuestado = db.Column(db.String(40))
     suscrito = db.Column(db.Boolean, default=True)
+    tiempo_resuscripcion = db.Column(db.Integer, default=0)
     encuestas = db.relationship('Encuesta', secondary=Contesta_encuesta, backref=db.backref('Encuestados_backref'),
                                 lazy='dynamic')
 
