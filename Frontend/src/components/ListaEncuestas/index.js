@@ -5,6 +5,7 @@ import swal from "sweetalert";
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from 'react-bootstrap/Button'
 import ModalEnviarCorreo from '../../components/ModalEnviarCorreo';
+import ModalEditarEncuesta from '../../components/ModalEditarEncuesta';
 import {Card, ListGroupItem, ButtonGroup} from "react-bootstrap";
 //import ModalEditarEncuesta from "../ModalEditarEncuesta";
 
@@ -47,6 +48,7 @@ const ListaEncuestas = () => {
                 <ListGroup.Item variant="dark" className="d-flex align-items-center justify-content-between ">
                     <span style={{fontWeight:'bold'}}>{titulo}</span>
                     <ButtonGroup className="d-flex justify-content-end">
+                        <ModalEditarEncuesta idEncuesta = {id_enc}> </ModalEditarEncuesta>
                         <ModalEnviarCorreo titulo= {titulo} idEncuesta = {id_enc}> </ModalEnviarCorreo>
                         <Button variant="danger" onClick={deleteEncuesta.bind(this, id_enc)}>Eliminar</Button>{' '}
                     </ButtonGroup>

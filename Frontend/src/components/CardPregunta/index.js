@@ -5,9 +5,10 @@ import swal from 'sweetalert';
 
 interface props {
     id_pregunta: Number;
+    enunciadito: String;
 }
 
-const CardPregunta: FC<props> = ({id_pregunta, handleChange}) => {
+const CardPregunta: FC<props> = ({id_pregunta, enunciadito, handleChange}) => {
     const [ansList, setAnsList] = useState([]);
     const [countAns, setCountAns] = useState(1);
 
@@ -32,6 +33,7 @@ const CardPregunta: FC<props> = ({id_pregunta, handleChange}) => {
                         placeholder={`Pregunta ${id_pregunta}`} 
                         aria-label="Título" 
                         aria-describedby="basic-addon2" 
+                        defaultValue={enunciadito}
                         onChange={handleChange}/>
                     </InputGroup>
                 </Card.Header>

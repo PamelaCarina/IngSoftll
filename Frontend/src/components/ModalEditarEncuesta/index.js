@@ -9,7 +9,11 @@ import axios from 'axios';
 
 //se puede enviar a la base de datos titulos y descripcion sin preguntas
 
-const ModalAgregarEncuesta = () => {
+interface props {
+  idEncuesta : Number;
+}
+
+const ModalEditarEncuesta: FC<props> = ({idEncuesta}) => {
 
   const idEditor = useParams();
   const [show, setShow] = useState(false);
@@ -18,7 +22,12 @@ const ModalAgregarEncuesta = () => {
   const [cardList, setCardList] = useState([]);
   const [id_pregunta, setId_Pregunta] = useState(1);
   const [inputs, setInputs] = useState({});
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState([]); //esto es para recuperar los tags para el select
+
+  const [encuesta, setEncuesta] = useState([]);
+  const [tag, setTag] = useState('') //esto es para recuperar el tag de la encuesta actual
+  const [preguntas, setPreguntas] = useState([]);
+  const [alternativas, setAlternativas] = useState([]); 
 
   const onAddCardClick = () => {
     if(cardList.length < 10){
@@ -34,6 +43,19 @@ const ModalAgregarEncuesta = () => {
             setTags(response.data)
             console.log(response.data)
         }).catch(err => console.log(err))
+        axios.get(`http://localhost:5000/showEncuesta/${idEncuesta}`).then(response => {
+            setEncuesta(response.data[0])
+            setPreguntas(response.data[1])
+            setAlternativas(response.data[2])
+            setTag(response.data[3])
+            //setInputs(values => ({...values, titulo_encuesta: response.data[0][0].titulo_encuesta}))
+            //setInputs(values => ({...values, descripcion_encuesta: response.data[0][0].descripcion_encuesta}))
+            //setInputs(values => ({...values, tag_encuesta: tag}))
+            //console.log(response.data[0][0].titulo_encuesta)
+            //console.log(inputs)
+        }).catch(err => console.log(err))
+        
+        
     }, [])
 
   const etiquetas = tags.map(tagcito => {
@@ -43,10 +65,10 @@ const ModalAgregarEncuesta = () => {
   })
 
   const vaciarCardListGuardar = (event) => {
-    //console.log("length",cardList.length);
+    console.log("length",cardList.length);
     for(let[key,value] in inputs){
       if(value.length===0){
-        //console.log("primer if");
+        console.log("primer if");
         event.preventDefault();
         return false;
       }
@@ -80,6 +102,9 @@ const ModalAgregarEncuesta = () => {
     const value = event.target.value;
     setInputs(values => ({...values, [name]: value}))
     console.log(name,value);
+
+    
+    //console.log("ESTOS SON LOS INPUTS?? --->",inputs)
   }
 
   const handleSubmit = (event) => {
@@ -94,7 +119,7 @@ const ModalAgregarEncuesta = () => {
     if(!vaciarCardListGuardar())
       return
 
-    //console.log(inputs)
+    console.log(inputs)
     var dict = []
     var dictP = []
     var dictA = []
@@ -143,20 +168,20 @@ const ModalAgregarEncuesta = () => {
     //console.log(inputs.titulo_encuesta)
     for(let[key,value] in inputs){
       if(value.length===0){
-        //console.log("primer if");
+        console.log("primer if");
         event.preventDefault();
       }
     }
     //DEVELOPMENT POST
-    axios.post('http://localhost:5000/saveEncuesta', {dict} )
+    axios.post(`http://localhost:5000/editEncuesta/${idEncuesta}`, {dict} )
     //DEPLOYMENT POST
     //axios.post('http://152.74.52.191:5009/saveEncuesta', {dict} )
        .then(res => {
-         //console.log(res);
-         swal("Correcto!",'Encuesta guardada satisfactoriamente','success')
+         console.log(res);
+         alert("Enviado Correctamente")
        })
      //handleClose(true);
-    /*
+/*
     if((cardList.length === 0) || (inputs.titulo_encuesta.length===0) || (inputs.descripcion_encuesta.length===0) || (inputs.enunciado_alternativa.length===0) || (inputs.enunciado_pregunta.length===0)){
       console.log("primer if");
       //event.preventDefault();
@@ -175,51 +200,67 @@ const ModalAgregarEncuesta = () => {
     */
   }
 
+  const enc = encuesta.map(encuesta => {
+    const titulo = encuesta.titulo_encuesta
+    const descripcion = encuesta.descripcion_encuesta
+    const tag_actual = tag
+
+    return(
+      <>
+        <InputGroup className="mb-3">
+          <Form.Control 
+            required
+            name="titulo_encuesta" 
+            placeholder="Título" aria-label="Título"
+            aria-describedby="basic-addon2" 
+            size="lg" 
+            type="text" 
+            defaultValue = {titulo}
+            autoFocus 
+            onChange={handleChange}/>
+        </InputGroup>
+        <InputGroup className="mb-3">
+          <Form.Control 
+            required
+            name="descripcion_encuesta" 
+            placeholder="Descripción" 
+            aria-label="Descripción"
+            aria-describedby="basic-addon2" 
+            as="textarea" 
+            rows={3} 
+            type="text" 
+            defaultValue = {descripcion}
+            autoFocus
+            onChange={handleChange}/>
+        </InputGroup>
+        <Form.Group className="mb-3">
+          <Form.Label>Seleccione Etiqueta</Form.Label>
+          <Form.Select name="tag_encuesta" onChange={handleChange}>
+            <option selected> {tag_actual}</option>
+            {etiquetas}
+          </Form.Select>
+        </Form.Group>
+      </>
+      );
+  })
+
   return (
       <>
-        <Button variant="primary" size="lg" onClick={handleShow} className="mb-3">
-          Agregar Nueva Encuesta
+        <Button variant="primary" onClick={handleShow}>
+          Editar
         </Button>
 
         <Modal show={show} onHide={handleClose} backdrop="static">
           <Modal.Header closeButton>
-            <Modal.Title>Agregar Nueva Encuesta</Modal.Title>
+            <Modal.Title>Editar Encuesta</Modal.Title>
           </Modal.Header>
           <Form onSubmit={handleSubmit}>
             <Modal.Body>
-              <InputGroup className="mb-3">
-                <Form.Control 
-                  required
-                  name="titulo_encuesta" 
-                  placeholder="Título" aria-label="Título"
-                  aria-describedby="basic-addon2" 
-                  size="lg" 
-                  type="text" 
-                  autoFocus 
-                  onChange={handleChange}/>
-              </InputGroup>
-              <InputGroup className="mb-3">
-                <Form.Control 
-                  required
-                  name="descripcion_encuesta" 
-                  placeholder="Descripción" 
-                  aria-label="Descripción"
-                  aria-describedby="basic-addon2" 
-                  as="textarea" 
-                  rows={3} 
-                  type="text" 
-                  autoFocus
-                  onChange={handleChange}/>
-              </InputGroup>
-              <Form.Group className="mb-3">
-                <Form.Label>Seleccione Etiqueta</Form.Label>
-                <Form.Select name="tag_encuesta" onChange={handleChange}>
-                  <option selected disabled hidden value="none"> ---Seleccionar---</option>
-                  {etiquetas}
-                </Form.Select>
-              </Form.Group>
+              {enc}
               {cardList}
-              <Button variant="info" onClick={onAddCardClick}>Agregar Pregunta</Button>
+              <Button variant="info" onClick={() => {
+                onAddCardClick();
+              }}>Agregar Pregunta</Button>
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={vaciarCardListCancelar}>Cancelar</Button>
@@ -231,4 +272,4 @@ const ModalAgregarEncuesta = () => {
   );
 }
 
-export default ModalAgregarEncuesta;
+export default ModalEditarEncuesta;
